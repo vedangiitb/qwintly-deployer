@@ -13,7 +13,15 @@
   "license": "ISC",
   "type": "module",
   "devDependencies": {
+    "@types/archiver": "^7.0.0",
+    "@types/node": "^25.0.3",
+    "@types/unzipper": "^0.10.11",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@google-cloud/storage": "^7.18.0",
+    "archiver": "^7.0.1",
+    "unzipper": "^0.12.3"
   }
 }
