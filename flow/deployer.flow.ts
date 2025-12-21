@@ -1,21 +1,21 @@
 import { JobContext } from "../job/jobContext.js";
 import { step } from "../job/step.js";
-import { buildProject } from "../services/buildProject.service.js";
-import { cloneSnapshot } from "../services/cloneSnapshot.service.js";
-import { deployProject } from "../services/deployProject.service.js";
+import { buildDeploy } from "../services/buildProject.service.js";
+import { getProjectDetails } from "../services/getProjectDetails.service.js";
+import { makeServicePublic } from "../services/makePublic.service.js";
 import { sendLog } from "../utils/logger.js";
 
 export async function deployerFlow(ctx: JobContext) {
-  await step(ctx, "Deployer Cloning Snapshot", () => cloneSnapshot(ctx), {
-    retries: 1,
+  await step(ctx, "Building Project", () => buildDeploy(ctx), {
+    retries: 0,
   });
 
-  await step(ctx, "Building Project", () => buildProject(ctx), {
-    retries: 1,
+  await step(ctx, "Updating Access Poilicies", () => makeServicePublic(ctx), {
+    retries: 0,
   });
 
-  await step(ctx, "Deploying Project", () => deployProject(ctx), {
-    retries: 1,
+  await step(ctx, "Sending Details to UI", () => getProjectDetails(ctx), {
+    retries: 0,
   });
 
   sendLog("SUCCESS");

@@ -14,7 +14,7 @@ export function createJobContext() {
     workspace: `/tmp/workspace/${SESSION_ID}`,
     zipPath: `/tmp/${SESSION_ID}.zip`,
     targetProjectId: process.env.TARGET_PROJECT_ID || "generated-sites",
-    snapshotBucket: SNAPSHOT_BUCKET_NAME || "qwintly-project-snapshots",
+    snapshotBucket: SNAPSHOT_BUCKET_NAME || "gen-project-snapshots",
   };
 }
 

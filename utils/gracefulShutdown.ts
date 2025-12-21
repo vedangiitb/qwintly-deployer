@@ -44,32 +44,18 @@ export async function shutdown(
 export async function safeExit(code = 0, reason?: string) {
   await shutdown(code, reason);
   // exit after cleanup completes
-  process.exit(code);
+  // process.exit(code);
 }
 
 // Register global handlers on import so the process becomes resilient to signals
-process.on("SIGINT", () => {
-  console.log("Received SIGINT");
-  shutdown(130, "SIGINT").catch((e) => console.error(e));
-});
-
-process.on("SIGTERM", () => {
-  console.log("Received SIGTERM");
-  shutdown(143, "SIGTERM").catch((e) => console.error(e));
-});
-
 process.on("unhandledRejection", (reason) => {
   console.error("Unhandled rejection:", reason);
-  shutdown(1, "unhandledRejection").catch((e) => console.error(e));
 });
 
 process.on("uncaughtException", (err) => {
   console.error("Uncaught exception:", err);
-  // Ensure cleanup runs and then exit with failure
-  shutdown(1, "uncaughtException")
-    .catch((e) => console.error(e))
-    .finally(() => process.exit(1));
 });
+
 
 export function isShuttingDown() {
   return shuttingDown;

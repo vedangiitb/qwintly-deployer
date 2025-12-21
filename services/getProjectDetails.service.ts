@@ -4,7 +4,7 @@ import { sendLog } from "../utils/logger.js";
 
 const runClient = new ServicesClient();
 
-export async function deployProject(ctx: JobContext) {
+export async function getProjectDetails(ctx: JobContext) {
   const serviceName = `site-${ctx.sessionId}`;
   const region = "asia-south1";
 
@@ -26,5 +26,5 @@ export async function deployProject(ctx: JobContext) {
     throw new Error("Cloud Run service URL not found");
   }
 
-  sendLog(`DEPLOYED_URL=${url}`);
+  sendLog(`${url}`);
 }
