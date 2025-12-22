@@ -1,6 +1,6 @@
 import { ServicesClient } from "@google-cloud/run";
 import { JobContext } from "../job/jobContext.js";
-import { sendLog } from "../utils/logger.js";
+import { saveUrl } from "./saveUrl.service.js";
 
 const runClient = new ServicesClient();
 
@@ -26,5 +26,5 @@ export async function getProjectDetails(ctx: JobContext) {
     throw new Error("Cloud Run service URL not found");
   }
 
-  sendLog(`${url}`);
+  saveUrl(url, ctx.sessionId);
 }
