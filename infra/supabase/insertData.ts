@@ -6,12 +6,21 @@ const supabase = createClient(
 );
 
 export async function insertDataSupabase(tableName: string, insertData: any) {
-  const { data, error } = await supabase.from(tableName).insert(insertData);
+  const { data, error } = await supabase
+    .from(tableName)
+    .insert([insertData])
+    .select()
+    .single();
 
   if (error) {
-    console.error("Supabase insert failed", error);
+    console.error("Supabase insert failed", {
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+      code: error.code,
+    });
     throw error;
   }
 
-  console.log("Inserted:", data);
+  return data;
 }
