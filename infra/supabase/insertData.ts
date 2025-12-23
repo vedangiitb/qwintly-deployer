@@ -5,7 +5,9 @@ export async function insertDataSupabase(tableName: string, insertData: any) {
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
   console.log(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-  
+
+  console.log("Inserting into:", tableName, insertData);
+
   const { data, error } = await supabase
     .from(tableName)
     .insert([insertData])
@@ -13,14 +15,10 @@ export async function insertDataSupabase(tableName: string, insertData: any) {
     .single();
 
   if (error) {
-    console.error("Supabase insert failed", {
-      message: error.message,
-      details: error.details,
-      hint: error.hint,
-      code: error.code,
-    });
+    console.error("Supabase full error:", JSON.stringify(error, null, 2));
     throw error;
   }
 
+  console.log("Inserted row:", data);
   return data;
 }
