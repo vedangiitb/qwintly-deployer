@@ -26,5 +26,5 @@ export async function getProjectDetails(ctx: JobContext) {
     throw new Error("Cloud Run service URL not found");
   }
 
-  saveUrl(url, ctx.sessionId);
+  await saveUrl(url, ctx.sessionId);
 }
