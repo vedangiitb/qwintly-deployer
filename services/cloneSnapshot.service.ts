@@ -6,8 +6,9 @@ import { JobContext } from "../job/jobContext.js";
 export async function cloneSnapshot(ctx: JobContext) {
   const workspacePath = ctx.workspace;
   const sessionId = ctx.sessionId;
-  const snapshotZipPath = `projects/${sessionId}.zip`;
+  // const snapshotZipPath = `projects/${sessionId}.zip`;
   const snapshotBucket = ctx.snapshotBucket;
+  const snapshotZipPath = "template-v1.zip";
   console.log(`Fetching template from GCS into ${workspacePath}`);
 
   await createFolder(workspacePath);

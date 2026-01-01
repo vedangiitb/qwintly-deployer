@@ -18,8 +18,6 @@ export async function getProjectDetails(ctx: JobContext) {
     name: servicePath,
   });
 
-  console.log(service);
-
   const url = service.urls?.[0];
 
   if (!url) {

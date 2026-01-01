@@ -1,14 +1,74 @@
 import { CloudBuildClient } from "@google-cloud/cloudbuild";
 import { JobContext } from "../job/jobContext.js";
+import { ValidatorAgentHistory } from "../types/validatorAgentHistory.js";
+import { parseValidationErrors } from "../utils/parseErrors.js";
+import { fetchCodeIndex } from "./fetchCodeIndex.service.js";
+import { fetchBuildLogs } from "./fetchLogs.service.js";
+import { validatorAgent } from "./validator/validatorAgent.service.js";
+import { uploadProjectSnapshot } from "./snapshot/uploadSnapshot.service.js";
+import { CodeIndex } from "../types/index/codeIndex.js";
+
+const MAX_RETRIES = 3;
+
+export async function deployWithRepair(
+  ctx: JobContext,
+  codeIndex: CodeIndex | undefined
+) {
+  if (!codeIndex) throw new Error("Failed to load codeindex.");
+  const globalHistory: ValidatorAgentHistory = [];
+
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    const result = await buildDeploy(ctx);
+
+    if (result.ok) {
+      console.log("Build & deploy succeeded");
+      return;
+    }
+
+    console.log(`Build failed (attempt ${attempt})`);
+
+    if (!result.logs) {
+      console.log(result);
+      throw new Error("Failed to fetch logs from failed build");
+    }
+
+    const errors = parseValidationErrors(result.logs);
+
+    console.log(errors);
+
+    if (!errors || errors.length === 0) {
+      throw new Error("Build failed, but no ESLint/TS errors detected");
+    }
+
+    const newHistory = await validatorAgent(
+      ctx,
+      errors,
+      globalHistory,
+      codeIndex
+    );
+
+    globalHistory.push(...newHistory);
+
+    await uploadProjectSnapshot(ctx);
+
+    codeIndex = await fetchCodeIndex(ctx);
+  }
+
+  throw new Error("Exceeded max repair attempts");
+}
 
 const cloudBuild = new CloudBuildClient();
 
 export async function buildDeploy(ctx: JobContext) {
   const bucketName = ctx.snapshotBucket;
-  const objectName = `projects/${ctx.sessionId}.zip`;
+  // const objectName = `projects/${ctx.sessionId}.zip`;
+
+  const objectName = "template-v1.zip";
 
   const image = `gcr.io/${ctx.targetProjectId}/site-${ctx.sessionId}`;
   const serviceName = `site-${ctx.sessionId}`;
+
+  const domain = `project-${ctx.sessionId}.projects.qwintly.com`;
 
   const [operation] = await cloudBuild.createBuild({
     projectId: ctx.targetProjectId,
@@ -49,11 +109,29 @@ export async function buildDeploy(ctx: JobContext) {
     },
   });
 
-  const [buildResult] = await operation.promise();
+  const operationName = operation.name!;
+  const buildId = extractBuildId(operationName);
+  console.log(operationName, buildId);
 
-  if (buildResult.status !== 3) {
-    throw new Error(`Build failed with status: ${buildResult.status}`);
+  try {
+    const [buildResult] = await operation.promise();
+
+    if (buildResult.status === 3) {
+      return { ok: true };
+    }
+
+    const logs = await fetchBuildLogs(operationName, ctx.targetProjectId);
+
+    return { ok: false, logs };
+  } catch (err: any) {
+    console.error("Cloud Build threw:", err);
   }
+  const logs = await fetchBuildLogs(buildId, ctx.targetProjectId);
 
-  console.log("Cloud Build triggered:", operation.name);
+  return { ok: false, logs };
+}
+
+function extractBuildId(operationName: string): string {
+  // projects/{project}/locations/{location}/operations/{buildId}
+  return operationName.split("/").pop()!;
 }
