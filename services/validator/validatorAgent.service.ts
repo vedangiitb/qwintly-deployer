@@ -100,7 +100,6 @@ export const validatorAgent = async (
       if (!args?.path || !args?.code || !args?.description) {
         throw new Error("Invalid write_code arguments.");
       }
-      console.log("code", args.path.toString(), args.code.toString());
 
       newHistory.push({
         file: args.path.toString(),

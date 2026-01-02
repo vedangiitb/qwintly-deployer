@@ -9,8 +9,8 @@ import { getProjectStructure } from "../services/indexer/helpers/getProjectStruc
 export const fetchCodeIndex = async (ctx: JobContext): Promise<CodeIndex> => {
   const bucketName = ctx.codeIndexBucket;
   const sessionId = ctx.sessionId;
-  // const filePath = `indexes/${sessionId}.json`;
-  const filePath = `indexes/code_index.json`;
+  const filePath = `indexes/${sessionId}.json`;
+  // const filePath = `indexes/code_index.json`;
   let codeIndex: CodeIndex;
   codeIndex = await downloadContentsGCS(filePath, bucketName);
 

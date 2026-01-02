@@ -6,8 +6,8 @@ export async function uploadProjectSnapshot(ctx: JobContext) {
   const sessionId = ctx.sessionId;
   const bucketName = ctx.snapshotBucket;
   const projectId = ctx.genProjectId;
-  // const destination = `projects/${sessionId}.zip`;
-  const destination = "template-v1.zip";
+  const destination = `projects/${sessionId}.zip`;
+  // const destination = "template-v1.zip";
   console.log(`Uploading project to gs://${bucketName}/${destination}`);
 
   try {

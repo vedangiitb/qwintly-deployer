@@ -51,12 +51,14 @@ ${JSON.stringify(codeIndex, null, 2)}
   - Do NOT read the same file more than once
   - You MAY call this tool MULTIPLE TIMES, but call it ONLY when needed and if you are making changes to that particular file or might be using that file 
   - IMPORTATNT: DO NOT CALL THIS FOR ALL THE FILES!!!, it might shoot up context size
+  - If read_file fails once for a filePath, DO NOT CALL it with the same filePath again.
 
 • write_code(path, code, description)
   - Writes the code to the file
   - **path** - Provide the exact path to file (Make use of code index and error information to get the correct path) 
   - **code**: The code that you are writing to the file. Always provide the complete code. Your code will be written **AS IS** to the file and not formatted, so include COMPLETE CODE and not just the changes.
   - **description**: Include the description of the changes that you are doing.
+  DO NOT write to the file without reading it first. 
 
 • finish_task(finished)
   - Signals that you have completed all fixes

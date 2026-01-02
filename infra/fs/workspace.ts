@@ -11,6 +11,7 @@ export async function removeFolder(path: string) {
 }
 
 export async function createFile(path: string, content: string) {
+  console.log("Writing file: ", path);
   try {
     await fs.writeFile(path, content, "utf-8");
   } catch (err) {

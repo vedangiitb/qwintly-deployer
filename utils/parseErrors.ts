@@ -1,27 +1,29 @@
 import { PreflightError } from "../types/preflightError.js";
 
 export function parseValidationErrors(logs: string): PreflightError[] {
-  console.log("Parsing errors...");
-  console.log(logs);
   const errors: PreflightError[] = [];
-
-  // Split logs into lines for scanning
   const lines = logs.split("\n");
 
   let buffer: string[] = [];
-  let currentType: "eslint" | "typescript" | null = null;
+  let currentType: "typescript" | "eslint" | null = null;
+  let pendingEslintFile: string | null = null;
 
   const flush = () => {
     if (!currentType || buffer.length === 0) return;
 
     const message = buffer.join("\n").trim();
 
-    // Try to extract file path
-    const fileMatch = message.match(/([^\s:()]+?\.(ts|tsx|js|jsx))/);
+    const fileMatch =
+      // TypeScript
+      message.match(/([^\s:()]+?\.(?:ts|tsx|js|jsx))\(\d+,\d+\)/) ||
+      // ESLint
+      message.match(/^([^\s]+?\.(?:ts|tsx|js|jsx))/m);
 
     errors.push({
       type: currentType,
-      filePath: fileMatch ? fileMatch[1] : null,
+      filePath: fileMatch?.[1]
+        ? normalizeFilePath(fileMatch[1])
+        : "Pls refer from error message",
       message,
     });
 
@@ -29,8 +31,21 @@ export function parseValidationErrors(logs: string): PreflightError[] {
     currentType = null;
   };
 
-  for (const line of lines) {
-    // ---- TypeScript error start ----
+  for (const rawLine of lines) {
+    const line = stripCloudBuildPrefix(rawLine);
+
+    // -----------------------
+    // ESLint file path line
+    // -----------------------
+    const eslintFileMatch = line.match(/^\s*(\/?.+?\.(?:ts|tsx|js|jsx))\s*$/);
+    if (eslintFileMatch) {
+      pendingEslintFile = eslintFileMatch[1];
+      continue;
+    }
+
+    // -----------------------
+    // TypeScript error start
+    // -----------------------
     if (/error TS\d+:/i.test(line)) {
       flush();
       currentType = "typescript";
@@ -38,25 +53,39 @@ export function parseValidationErrors(logs: string): PreflightError[] {
       continue;
     }
 
-    // ---- ESLint error start ----
-    if (
-      /\berror\b/i.test(line) &&
-      /eslint|@typescript-eslint|no-unused-vars|no-undef/.test(line)
-    ) {
+    // -----------------------
+    // ESLint error start
+    // -----------------------
+    if (pendingEslintFile && /^\s*\d+:\d+\s+error\s+/i.test(line)) {
       flush();
       currentType = "eslint";
+      buffer.push(pendingEslintFile);
       buffer.push(line);
+      pendingEslintFile = null;
       continue;
     }
 
-    // ---- Continuation line ----
+    // -----------------------
+    // Continuation
+    // -----------------------
     if (currentType) {
       buffer.push(line);
     }
   }
 
   flush();
-
-  console.log(errors);
   return errors;
+}
+
+function stripCloudBuildPrefix(line: string): string {
+  return line.replace(/^Step #\d+:\s*/, "");
+}
+
+function normalizeFilePath(filePath: string): string {
+  let p = filePath.replace(/\\/g, "/");
+  p = p.replace(/^\/+/, "");
+  if (p.startsWith("app/app/")) {
+    p = p.replace(/^app\//, "");
+  }
+  return p;
 }

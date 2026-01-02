@@ -1,12 +1,13 @@
 import { CloudBuildClient } from "@google-cloud/cloudbuild";
 import { JobContext } from "../job/jobContext.js";
+import { CodeIndex } from "../types/index/codeIndex.js";
 import { ValidatorAgentHistory } from "../types/validatorAgentHistory.js";
 import { parseValidationErrors } from "../utils/parseErrors.js";
 import { fetchCodeIndex } from "./fetchCodeIndex.service.js";
 import { fetchBuildLogs } from "./fetchLogs.service.js";
-import { validatorAgent } from "./validator/validatorAgent.service.js";
 import { uploadProjectSnapshot } from "./snapshot/uploadSnapshot.service.js";
-import { CodeIndex } from "../types/index/codeIndex.js";
+import { validatorAgent } from "./validator/validatorAgent.service.js";
+import { zipProject } from "./zipProject.service.js";
 
 const MAX_RETRIES = 3;
 
@@ -28,7 +29,6 @@ export async function deployWithRepair(
     console.log(`Build failed (attempt ${attempt})`);
 
     if (!result.logs) {
-      console.log(result);
       throw new Error("Failed to fetch logs from failed build");
     }
 
@@ -49,6 +49,8 @@ export async function deployWithRepair(
 
     globalHistory.push(...newHistory);
 
+    await zipProject(ctx);
+
     await uploadProjectSnapshot(ctx);
 
     codeIndex = await fetchCodeIndex(ctx);
@@ -61,9 +63,9 @@ const cloudBuild = new CloudBuildClient();
 
 export async function buildDeploy(ctx: JobContext) {
   const bucketName = ctx.snapshotBucket;
-  // const objectName = `projects/${ctx.sessionId}.zip`;
+  const objectName = `projects/${ctx.sessionId}.zip`;
 
-  const objectName = "template-v1.zip";
+  // const objectName = "template-v1.zip";
 
   const image = `gcr.io/${ctx.targetProjectId}/site-${ctx.sessionId}`;
   const serviceName = `site-${ctx.sessionId}`;
@@ -109,29 +111,27 @@ export async function buildDeploy(ctx: JobContext) {
     },
   });
 
-  const operationName = operation.name!;
-  const buildId = extractBuildId(operationName);
-  console.log(operationName, buildId);
+  const buildId = (operation.metadata as any)?.build?.id;
+
+  if (!buildId) {
+    throw new Error("Failed to extract buildId from operation metadata");
+  }
 
   try {
     const [buildResult] = await operation.promise();
+    console.log(buildResult);
 
     if (buildResult.status === 3) {
       return { ok: true };
     }
 
-    const logs = await fetchBuildLogs(operationName, ctx.targetProjectId);
+    const logs = await fetchBuildLogs(buildId, ctx);
 
     return { ok: false, logs };
   } catch (err: any) {
     console.error("Cloud Build threw:", err);
   }
-  const logs = await fetchBuildLogs(buildId, ctx.targetProjectId);
+  const logs = await fetchBuildLogs(buildId, ctx);
 
   return { ok: false, logs };
-}
-
-function extractBuildId(operationName: string): string {
-  // projects/{project}/locations/{location}/operations/{buildId}
-  return operationName.split("/").pop()!;
 }

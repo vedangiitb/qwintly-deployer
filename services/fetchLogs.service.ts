@@ -1,8 +1,13 @@
 import { Logging } from "@google-cloud/logging";
+import { JobContext } from "../job/jobContext.js";
 
-const logging = new Logging();
+export async function fetchBuildLogs(
+  buildId: string,
+  ctx: JobContext
+): Promise<string> {
+  const projectId = ctx.genProjectId;
+  const logging = new Logging({ projectId });
 
-export async function fetchBuildLogs(buildId: string, projectId: string) {
   const filter = `
     resource.type="build"
     resource.labels.build_id="${buildId}"
@@ -14,7 +19,11 @@ export async function fetchBuildLogs(buildId: string, projectId: string) {
   });
 
   return entries
-    .map(e => e.data?.textPayload)
+    .map((e) => {
+      if (typeof e.data === "string") return e.data;
+      if (typeof e.data === "object") return JSON.stringify(e.data);
+      return undefined;
+    })
     .filter(Boolean)
     .join("\n");
 }
