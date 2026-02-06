@@ -5,8 +5,13 @@ export function parseValidationErrors(logs: string): PreflightError[] {
   const lines = logs.split("\n");
 
   let buffer: string[] = [];
-  let currentType: "typescript" | "eslint" | null = null;
+  let currentType: "typescript" | "eslint" | "nextjs" | null = null;
   let pendingEslintFile: string | null = null;
+
+  const nextJsError = parseNextJsPrerenderError(logs);
+  if (nextJsError) {
+    errors.push(nextJsError);
+  }
 
   const flush = () => {
     if (!currentType || buffer.length === 0) return;
@@ -19,13 +24,15 @@ export function parseValidationErrors(logs: string): PreflightError[] {
       // ESLint
       message.match(/^([^\s]+?\.(?:ts|tsx|js|jsx))/m);
 
-    errors.push({
-      type: currentType,
-      filePath: fileMatch?.[1]
-        ? normalizeFilePath(fileMatch[1])
-        : "Pls refer from error message",
-      message,
-    });
+    if (currentType !== "nextjs") {
+      errors.push({
+        type: currentType,
+        filePath: fileMatch?.[1]
+          ? normalizeFilePath(fileMatch[1])
+          : "Pls refer from error message",
+        message,
+      });
+    }
 
     buffer = [];
     currentType = null;
@@ -49,6 +56,16 @@ export function parseValidationErrors(logs: string): PreflightError[] {
     if (/error TS\d+:/i.test(line)) {
       flush();
       currentType = "typescript";
+      buffer.push(line);
+      continue;
+    }
+
+    // -----------------------
+    // Next.js prerender error
+    // -----------------------
+    if (/Error occurred prerendering page/i.test(line)) {
+      flush();
+      currentType = "nextjs";
       buffer.push(line);
       continue;
     }
@@ -79,6 +96,27 @@ export function parseValidationErrors(logs: string): PreflightError[] {
 
 function stripCloudBuildPrefix(line: string): string {
   return line.replace(/^Step #\d+:\s*/, "");
+}
+
+function parseNextJsPrerenderError(logs: string): PreflightError | null {
+  const blockMatch = logs.match(
+    /Error occurred prerendering page[\s\S]*?(?:Next\.js build worker exited with code:\s*\d+|Export encountered an error[^\n]*)/i
+  );
+
+  if (!blockMatch) return null;
+
+  const message = blockMatch[0].trim();
+  const routeMatch =
+    message.match(/prerendering page\s+"([^"]+)"/i) ||
+    message.match(/\/page:\s*([^\s,]+)/i);
+
+  const route = routeMatch?.[1] ?? null;
+
+  return {
+    type: "nextjs",
+    filePath: route ? `route:${route}` : null,
+    message,
+  };
 }
 
 function normalizeFilePath(filePath: string): string {

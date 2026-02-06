@@ -29,7 +29,10 @@ export async function deployWithRepair(
     console.log(`Build failed (attempt ${attempt})`);
 
     if (!result.logs) {
-      throw new Error("Failed to fetch logs from failed build");
+      const msg = "Failed to fetch logs from failed build";
+      if (attempt >= MAX_RETRIES) throw new Error(msg);
+      console.warn(`${msg}; retrying...`);
+      continue;
     }
 
     const errors = parseValidationErrors(result.logs);
@@ -37,7 +40,10 @@ export async function deployWithRepair(
     console.log(errors);
 
     if (!errors || errors.length === 0) {
-      throw new Error("Build failed, but no ESLint/TS errors detected");
+      const msg = "Build failed, but no ESLint/TS errors detected";
+      if (attempt >= MAX_RETRIES) throw new Error(msg);
+      console.warn(`${msg}; retrying without repair...`);
+      continue;
     }
 
     const newHistory = await validatorAgent(
