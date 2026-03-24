@@ -1,8 +1,10 @@
 // Session/workspace/env context
 import {
-  GEN_PROJECT_ID,
+  GCP_PROJECT_ID_QWINTLY,
+  GEN_SITES_PROJECT_ID,
+  REQUEST_TYPE,
   SESSION_ID,
-  SNAPSHOT_BUCKET_NAME,
+  SNAPSHOT_BUCKET,
 } from "../config/env.js";
 
 export function createJobContext() {
@@ -12,13 +14,12 @@ export function createJobContext() {
 
   return {
     sessionId: SESSION_ID,
-    workspace: `/tmp/workspace/${SESSION_ID}`,
+    requestType: REQUEST_TYPE,
+    workspace: `/tmp/workspace`,
     zipPath: `/tmp/${SESSION_ID}.zip`,
-    targetProjectId: process.env.TARGET_PROJECT_ID || "generated-sites",
-    snapshotBucket: SNAPSHOT_BUCKET_NAME || "gen-project-snapshots",
-    codeIndexBucket: "qwintly-code-indexes",
-    genProjectId: GEN_PROJECT_ID,
-    projectId: "qwintly",
+    snapshotBucket: SNAPSHOT_BUCKET || "gen-project-snapshots",
+    projectId: GCP_PROJECT_ID_QWINTLY,
+    targetProjectId: GEN_SITES_PROJECT_ID!,
   };
 }
 

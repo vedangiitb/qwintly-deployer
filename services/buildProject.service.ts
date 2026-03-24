@@ -3,8 +3,8 @@ import { JobContext } from "../job/jobContext.js";
 import { CodeIndex } from "../types/index/codeIndex.js";
 import { ValidatorAgentHistory } from "../types/validatorAgentHistory.js";
 import { parseValidationErrors } from "../utils/parseErrors.js";
-import { fetchCodeIndex } from "./fetchCodeIndex.service.js";
 import { fetchBuildLogs } from "./fetchLogs.service.js";
+import { buildCodeIndex } from "./indexer/buildCodeIndex.service.js";
 import { uploadProjectSnapshot } from "./snapshot/uploadSnapshot.service.js";
 import { validatorAgent } from "./validator/validatorAgent.service.js";
 import { zipProject } from "./zipProject.service.js";
@@ -13,7 +13,7 @@ const MAX_RETRIES = 3;
 
 export async function deployWithRepair(
   ctx: JobContext,
-  codeIndex: CodeIndex | undefined
+  codeIndex: CodeIndex | undefined,
 ) {
   if (!codeIndex) throw new Error("Failed to load codeindex.");
   const globalHistory: ValidatorAgentHistory = [];
@@ -50,7 +50,7 @@ export async function deployWithRepair(
       ctx,
       errors,
       globalHistory,
-      codeIndex
+      codeIndex,
     );
 
     globalHistory.push(...newHistory);
@@ -59,7 +59,7 @@ export async function deployWithRepair(
 
     await uploadProjectSnapshot(ctx);
 
-    codeIndex = await fetchCodeIndex(ctx);
+    codeIndex = await buildCodeIndex(ctx);
   }
 
   throw new Error("Exceeded max repair attempts");
