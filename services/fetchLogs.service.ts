@@ -5,7 +5,7 @@ export async function fetchBuildLogs(
   buildId: string,
   ctx: JobContext
 ): Promise<string> {
-  const projectId = ctx.genProjectId;
+  const projectId = ctx.targetProjectId;
   const logging = new Logging({ projectId });
 
   const filter = `

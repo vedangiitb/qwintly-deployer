@@ -1,10 +1,11 @@
 import { File, Storage } from "@google-cloud/storage";
+import { GEN_SITES_PROJECT_ID } from "../../config/env.js";
 
-const storage = new Storage();
+const storage = new Storage({ projectId: GEN_SITES_PROJECT_ID });
 
 async function getExistingFile(
   bucketName: string,
-  filePath: string
+  filePath: string,
 ): Promise<File> {
   const file = storage.bucket(bucketName).file(filePath);
 
@@ -19,7 +20,7 @@ async function getExistingFile(
 export async function downloadToDestinationGCS(
   destination: string,
   filePath: string,
-  bucketName: string
+  bucketName: string,
 ): Promise<void> {
   const file = await getExistingFile(bucketName, filePath);
   await file.download({ destination });
@@ -27,7 +28,7 @@ export async function downloadToDestinationGCS(
 
 export async function downloadContentsGCS<T = unknown>(
   filePath: string,
-  bucketName: string
+  bucketName: string,
 ): Promise<T> {
   const file = await getExistingFile(bucketName, filePath);
   const [contents] = await file.download();
