@@ -55,5 +55,5 @@ jobs:
             --max-retries=1 \
             --task-timeout=420 \
             --service-account=${{ vars.DEPLOYER_SA_EMAIL }} \
-            --set-env-vars="SNAPSHOT_BUCKET=${{ vars.SNAPSHOT_BUCKET }},GCP_PROJECT_ID_QWINTLY=${{ vars.GCP_PROJECT_ID_QWINTLY }},GEN_SITES_PROJECT_ID=${{ vars.GEN_SITES_PROJECT_ID }}" \
+            --set-env-vars="SNAPSHOT_BUCKET=${{ vars.SNAPSHOT_BUCKET }},GCP_PROJECT_ID_QWINTLY=${{ vars.GCP_PROJECT_ID_QWINTLY }},GEN_SITES_PROJECT_ID=${{ vars.GEN_SITES_PROJECT_ID }},ENV_SITE_URL=${{vars.ENV_SITE_URL}}" \
             --set-secrets="NEXT_PUBLIC_SUPABASE_URL=supabase-url:latest,SUPABASE_SECRET_KEY=supabase-secret-key:latest,GEMINI_API_KEY=gemini-api-key:latest"
