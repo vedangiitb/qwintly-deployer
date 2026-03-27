@@ -3,6 +3,9 @@ export const ProjectRequestType = {
   UPDATE: "update",
 } as const;
 
+export const ProjectUrl = (sessionId: string, envUrl: string) =>
+  `${sessionId}.${envUrl}`;
+
 export const ProjectPathConstants = (sessionId: string) => {
   return {
     baseCodeIndex: "indexes/default-code_index.json",

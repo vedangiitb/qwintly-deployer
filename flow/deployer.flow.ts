@@ -29,7 +29,7 @@ export async function deployerFlow(ctx: JobContext) {
     retries: 1,
   });
 
-  await step(ctx, "Sending Details to UI", () => getProjectDetails(ctx), {
+  await step(ctx, "Updating project deployment Details", () => getProjectDetails(ctx), {
     retries: 1,
   });
 
