@@ -88,10 +88,8 @@ export async function buildDeploy(ctx: JobContext) {
   }
 
   const buildSA = `projects/${process.env.GEN_SITES_PROJECT_ID}/serviceAccounts/${process.env.GEN_SITES_BUILD_SA}`;
-  const runSA = `projects/${process.env.GEN_SITES_PROJECT_ID}/serviceAccounts/${process.env.GEN_SITES_RUNTIME_SA}`;
-
-  if (!buildSA || !runSA) throw new Error("Missing required env vars");
-
+  const runSA = process.env.GEN_SITES_RUNTIME_SA;
+  
   const [operation] = await cloudBuild.createBuild({
     projectId: ctx.targetProjectId,
     build: {
