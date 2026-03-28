@@ -78,8 +78,16 @@ export async function buildDeploy(ctx: JobContext) {
 
   const domain = `project-${ctx.sessionId}.projects.qwintly.com`;
 
-  const buildSA = process.env.GEN_SITES_BUILD_SA;
-  const runSA = process.env.GEN_SITES_RUNTIME_SA;
+  if (
+    !process.env.GEN_SITES_BUILD_SA ||
+    !process.env.GEN_SITES_RUNTIME_SA ||
+    !process.env.GEN_SITES_PROJECT_ID
+  ) {
+    throw new Error("Missing required env vars for Gen sites project");
+  }
+
+  const buildSA = `projects/${process.env.GEN_SITES_PROJECT_ID}/serviceAccounts/${process.env.GEN_SITES_BUILD_SA}`;
+  const runSA = `projects/${process.env.GEN_SITES_PROJECT_ID}/serviceAccounts/${process.env.GEN_SITES_RUNTIME_SA}`;
 
   if (!buildSA || !runSA) throw new Error("Missing required env vars");
 
