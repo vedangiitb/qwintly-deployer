@@ -121,6 +121,9 @@ export async function buildDeploy(ctx: JobContext) {
           ],
         },
       ],
+      options: {
+        logging: "CLOUD_LOGGING_ONLY",
+      },
       images: [image],
     },
   });
