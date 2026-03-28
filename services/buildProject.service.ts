@@ -31,8 +31,8 @@ export async function deployWithRepair(
     if (!result.logs) {
       const msg = "Failed to fetch logs from failed build";
       if (attempt >= MAX_RETRIES) throw new Error(msg);
-      console.warn(`${msg}; retrying...`);
-      continue;
+      console.warn(`${msg}; Failed to build...`);
+      break;
     }
 
     const errors = parseValidationErrors(result.logs);
@@ -42,10 +42,11 @@ export async function deployWithRepair(
     if (!errors || errors.length === 0) {
       const msg = "Build failed, but no ESLint/TS errors detected";
       if (attempt >= MAX_RETRIES) throw new Error(msg);
-      console.warn(`${msg}; retrying without repair...`);
-      continue;
+      console.warn(`${msg}; Failed to build...`);
+      break;
     }
 
+    // Fixing build issues
     const newHistory = await validatorAgent(
       ctx,
       errors,
@@ -89,7 +90,7 @@ export async function buildDeploy(ctx: JobContext) {
 
   const buildSA = `projects/${process.env.GEN_SITES_PROJECT_ID}/serviceAccounts/${process.env.GEN_SITES_BUILD_SA}`;
   const runSA = process.env.GEN_SITES_RUNTIME_SA;
-  
+
   const [operation] = await cloudBuild.createBuild({
     projectId: ctx.targetProjectId,
     build: {
