@@ -73,7 +73,8 @@ export async function buildDeploy(ctx: JobContext) {
 
   // const objectName = "template-v1.zip";
 
-  const image = `gcr.io/${ctx.targetProjectId}/site-${ctx.sessionId}`;
+  // const image = `gcr.io/${ctx.targetProjectId}/site-${ctx.sessionId}`;
+  const image = `asia-south1-docker.pkg.dev/${ctx.targetProjectId}/generated-sites/site-${ctx.sessionId}`;
   const serviceName = `site-${ctx.sessionId}`;
 
   const domain = `project-${ctx.sessionId}.projects.qwintly.com`;
