@@ -1,9 +1,10 @@
 import { ServicesClient } from "@google-cloud/run";
-import { JobContext } from "../job/jobContext.js";
+import { getJobContext } from "../job/jobContext.js";
 
 const runClient = new ServicesClient();
 
-export async function makeServicePublic(ctx: JobContext) {
+export async function makeServicePublic() {
+  const ctx = getJobContext();
   const projectId = ctx.targetProjectId;
   const region = "asia-south1";
   const serviceName = `site-${ctx.chatId}`;
@@ -17,7 +18,7 @@ export async function makeServicePublic(ctx: JobContext) {
 
   // Check if already public
   const alreadyPublic = policy.bindings?.some(
-    (b) => b.role === "roles/run.invoker" && b.members?.includes("allUsers")
+    (b) => b.role === "roles/run.invoker" && b.members?.includes("allUsers"),
   );
 
   if (alreadyPublic) {

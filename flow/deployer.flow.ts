@@ -1,37 +1,35 @@
-import { JobContext } from "../job/jobContext.js";
 import { step } from "../job/step.js";
 import { deployWithRepair } from "../services/buildProject.service.js";
 import { cloneSnapshot } from "../services/cloneSnapshot.service.js";
 import { getProjectDetails } from "../services/getProjectDetails.service.js";
 import { buildCodeIndex } from "../services/indexer/buildCodeIndex.service.js";
 import { makeServicePublic } from "../services/makePublic.service.js";
-import { sendLog } from "../utils/logger.js";
+import { logger } from "../services/logger/logger.service.js";
 
-export async function deployerFlow(ctx: JobContext) {
-  await step(ctx, "Cloning Project Snapshot", () => cloneSnapshot(ctx), {
+export async function deployerFlow() {
+  await step("Cloning Project Snapshot", () => cloneSnapshot(), {
     retries: 0,
   });
 
   let codeIndex = await step(
-    ctx,
     "Loading Updated Code Index",
-    () => buildCodeIndex(ctx),
+    () => buildCodeIndex(),
     {
       retries: 2,
     },
   );
 
-  await step(ctx, "Building Project", () => deployWithRepair(ctx, codeIndex), {
+  await step("Building Project", () => deployWithRepair(codeIndex), {
     retries: 0,
   });
 
-  await step(ctx, "Updating Access Poilicies", () => makeServicePublic(ctx), {
+  await step("Updating Access Poilicies", () => makeServicePublic(), {
     retries: 1,
   });
 
-  await step(ctx, "Updating project deployment Details", () => getProjectDetails(ctx), {
+  await step("Updating project deployment Details", () => getProjectDetails(), {
     retries: 1,
   });
 
-  sendLog("SUCCESS");
+  logger.status("SUCCESS");
 }

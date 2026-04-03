@@ -4,7 +4,7 @@ export const ProjectRequestType = {
 } as const;
 
 export const ProjectUrl = (chatId: string, envUrl: string) =>
-  `${chatId}.${envUrl}`;
+  `${chatId}-${envUrl}`;
 
 export const ProjectPathConstants = (chatId: string) => {
   return {

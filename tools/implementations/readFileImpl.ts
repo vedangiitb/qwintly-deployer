@@ -1,6 +1,7 @@
 import path from "path";
 import { readFile } from "../../infra/fs/workspace.js";
 import { JobContext } from "../../job/jobContext.js";
+import { logger } from "../../services/logger/logger.service.js";
 export async function readFileImpl(ctx: JobContext, dirPath: string) {
   let fullPath: string;
   try {
@@ -11,7 +12,7 @@ export async function readFileImpl(ctx: JobContext, dirPath: string) {
       fullPath = ctx.workspace + (dirPath.startsWith("/") ? "" : "/") + dirPath;
     }
 
-    console.log("Reading...", fullPath);
+    logger.info(`Reading... ${fullPath}`);
 
     const file = readFile(fullPath);
     return file;

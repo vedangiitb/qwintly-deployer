@@ -1,17 +1,18 @@
 import { ServicesClient } from "@google-cloud/run";
-import { JobContext } from "../job/jobContext.js";
+import { getJobContext } from "../job/jobContext.js";
 import { saveUrl } from "./saveUrl.service.js";
 
 const runClient = new ServicesClient();
 
-export async function getProjectDetails(ctx: JobContext) {
+export async function getProjectDetails() {
+  const ctx = getJobContext();
   const serviceName = `site-${ctx.chatId}`;
   const region = "asia-south1";
 
   const servicePath = runClient.servicePath(
     ctx.targetProjectId,
     region,
-    serviceName
+    serviceName,
   );
 
   const [service] = await runClient.getService({
