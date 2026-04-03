@@ -6,7 +6,7 @@ const runClient = new ServicesClient();
 export async function makeServicePublic(ctx: JobContext) {
   const projectId = ctx.targetProjectId;
   const region = "asia-south1";
-  const serviceName = `site-${ctx.sessionId}`;
+  const serviceName = `site-${ctx.chatId}`;
 
   const servicePath = runClient.servicePath(projectId, region, serviceName);
 

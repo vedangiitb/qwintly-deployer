@@ -7,11 +7,11 @@ import { logger } from "../utils/logger.js";
 
 export async function cloneSnapshot(ctx: JobContext) {
   const workspacePath = ctx.workspace;
-  const sessionId = ctx.sessionId;
+  const chatId = ctx.chatId;
 
   const bucketName = ctx.snapshotBucket!;
-  const zipPath = ProjectPathConstants(sessionId).snapShotPath;
-  const tmpZipPath = ProjectPathConstants(sessionId).tmpZipPath;
+  const zipPath = ProjectPathConstants(chatId).snapShotPath;
+  const tmpZipPath = ProjectPathConstants(chatId).tmpZipPath;
 
   logger.info("Fetching template", {
     zipPath,

@@ -1,6 +1,6 @@
 import "dotenv/config";
 
-export const SESSION_ID = process.env.SESSION_ID!;
+export const CHAT_ID = process.env.CHAT_ID!;
 export const REQUEST_TYPE = process.env.REQUEST_TYPE!;
 export const SNAPSHOT_BUCKET = process.env.SNAPSHOT_BUCKET;
 export const GCP_PROJECT_ID_QWINTLY = process.env.GCP_PROJECT_ID_QWINTLY;

@@ -5,7 +5,7 @@ import { saveUrl } from "./saveUrl.service.js";
 const runClient = new ServicesClient();
 
 export async function getProjectDetails(ctx: JobContext) {
-  const serviceName = `site-${ctx.sessionId}`;
+  const serviceName = `site-${ctx.chatId}`;
   const region = "asia-south1";
 
   const servicePath = runClient.servicePath(
@@ -24,5 +24,5 @@ export async function getProjectDetails(ctx: JobContext) {
     throw new Error("Cloud Run service URL not found");
   }
 
-  await saveUrl(url, ctx.sessionId);
+  await saveUrl(url, ctx.chatId);
 }
