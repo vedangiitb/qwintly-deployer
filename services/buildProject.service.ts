@@ -1,5 +1,5 @@
 import { CloudBuildClient } from "@google-cloud/cloudbuild";
-import { JobContext } from "../job/jobContext.js";
+import { getJobContext, JobContext } from "../job/jobContext.js";
 import { CodeIndex } from "../types/index/codeIndex.js";
 import { ValidatorAgentHistory } from "../types/validatorAgentHistory.js";
 import { parseValidationErrors } from "../utils/parseErrors.js";
@@ -8,13 +8,11 @@ import { buildCodeIndex } from "./indexer/buildCodeIndex.service.js";
 import { uploadProjectSnapshot } from "./snapshot/uploadSnapshot.service.js";
 import { validatorAgent } from "./validator/validatorAgent.service.js";
 import { zipProject } from "./zipProject.service.js";
-
+import { logger } from "./logger/logger.service.js";
 const MAX_RETRIES = 3;
 
-export async function deployWithRepair(
-  ctx: JobContext,
-  codeIndex: CodeIndex | undefined,
-) {
+export async function deployWithRepair(codeIndex: CodeIndex | undefined) {
+  const ctx = getJobContext();
   if (!codeIndex) throw new Error("Failed to load codeindex.");
   const globalHistory: ValidatorAgentHistory = [];
 
@@ -22,16 +20,16 @@ export async function deployWithRepair(
     const result = await buildDeploy(ctx);
 
     if (result.ok) {
-      console.log("Build & deploy succeeded");
+      logger.info("Build & deploy succeeded");
       return;
     }
 
-    console.log(`Build failed (attempt ${attempt})`);
+    logger.info(`Build failed (attempt ${attempt})`);
 
     if (!result.logs) {
       const msg = "Failed to fetch logs from failed build";
       if (attempt >= MAX_RETRIES) throw new Error(msg);
-      console.warn(`${msg}; Failed to build...`);
+      logger.warn(`${msg}; Failed to build...`);
       break;
     }
 
@@ -42,7 +40,7 @@ export async function deployWithRepair(
     if (!errors || errors.length === 0) {
       const msg = "Build failed, but no ESLint/TS errors detected";
       if (attempt >= MAX_RETRIES) throw new Error(msg);
-      console.warn(`${msg}; Failed to build...`);
+      logger.warn(`${msg}; Failed to build...`);
       break;
     }
 
@@ -60,7 +58,7 @@ export async function deployWithRepair(
 
     await uploadProjectSnapshot(ctx);
 
-    codeIndex = await buildCodeIndex(ctx);
+    codeIndex = await buildCodeIndex();
   }
 
   throw new Error("Exceeded max repair attempts");
@@ -70,15 +68,13 @@ const cloudBuild = new CloudBuildClient();
 
 export async function buildDeploy(ctx: JobContext) {
   const bucketName = ctx.snapshotBucket;
-  const objectName = `projects/${ctx.sessionId}.zip`;
+  const objectName = `projects/${ctx.chatId}.zip`;
 
   // const objectName = "template-v1.zip";
 
-  // const image = `gcr.io/${ctx.targetProjectId}/site-${ctx.sessionId}`;
-  const image = `asia-south1-docker.pkg.dev/${ctx.targetProjectId}/generated-sites/site-${ctx.sessionId}`;
-  const serviceName = `site-${ctx.sessionId}`;
-
-  const domain = `project-${ctx.sessionId}.projects.qwintly.com`;
+  // const image = `gcr.io/${ctx.targetProjectId}/site-${ctx.chatId}`;
+  const image = `asia-south1-docker.pkg.dev/${ctx.targetProjectId}/generated-sites/site-${ctx.chatId}`;
+  const serviceName = `site-${ctx.chatId}`;
 
   if (
     !process.env.GEN_SITES_BUILD_SA ||
@@ -154,7 +150,7 @@ export async function buildDeploy(ctx: JobContext) {
 
     return { ok: false, logs };
   } catch (err: any) {
-    console.error("Cloud Build threw:", err);
+    logger.error(`Cloud Build threw: ${err.message}`);
   }
   const logs = await fetchBuildLogs(buildId, ctx);
 

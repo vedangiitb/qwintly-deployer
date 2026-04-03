@@ -11,12 +11,13 @@ import { validatorTools } from "../../tools/toolsets/validatorTools.js";
 import { CodeIndex } from "../../types/index/codeIndex.js";
 import { PreflightErrorList } from "../../types/preflightError.js";
 import { ValidatorAgentHistory } from "../../types/validatorAgentHistory.js";
+import { logger } from "../logger/logger.service.js";
 
 export const validatorAgent = async (
   ctx: JobContext,
   errors: PreflightErrorList,
   history: ValidatorAgentHistory,
-  codeIndex: CodeIndex
+  codeIndex: CodeIndex,
 ): Promise<ValidatorAgentHistory> => {
   const MAX_STEPS = 6;
   let steps = 0;
@@ -64,7 +65,7 @@ export const validatorAgent = async (
     // -----------------------------
     if (name === ReadFileSchema.name) {
       const { path } = args as { path: string };
-      console.log("Validator Agent: Reading file" + path);
+      logger.info("Validator Agent: Reading file" + path);
       let content: string;
 
       if (readFiles.has(path)) {
@@ -96,7 +97,7 @@ export const validatorAgent = async (
     // WRITE CODE (TERMINAL)
     // -----------------------------
     if (name === writeCodeSchema.name) {
-      console.log("Writing code for file", args?.path?.toString());
+      logger.info(`Writing code for file ${args?.path?.toString()}`);
       if (!args?.path || !args?.code || !args?.description) {
         throw new Error("Invalid write_code arguments.");
       }
@@ -110,7 +111,7 @@ export const validatorAgent = async (
         ctx,
         args.path.toString(),
         args.code.toString(),
-        args.description.toString()
+        args.description.toString(),
       );
 
       contents.push({
@@ -130,7 +131,7 @@ export const validatorAgent = async (
     // END OF CONVERSATION
     // -----------------------------
     if (name === FinishTaskSchema.name) {
-      console.log("Validation finished!");
+      logger.info("Validation finished!");
       break;
     }
   }
