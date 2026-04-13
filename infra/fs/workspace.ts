@@ -2,6 +2,8 @@
 import fs from "fs/promises";
 import path from "path";
 import { logger } from "../../services/logger/logger.service.js";
+import { Dirent } from "fs";
+
 export async function createFolder(path: string) {
   await fs.mkdir(path, { recursive: true });
 }
@@ -34,6 +36,22 @@ export async function readDir(path: string) {
   return await fs.readdir(path, { withFileTypes: true });
 }
 
+const sortDirents = (a: Dirent, b: Dirent) => {
+  const aIsDir = a.isDirectory();
+  const bIsDir = b.isDirectory();
+  if (aIsDir !== bIsDir) return aIsDir ? -1 : 1;
+  return a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
+};
+
+export async function safeReadDir(dir: string) {
+  try {
+    const entries = await fs.readdir(dir, { withFileTypes: true });
+    return entries.sort(sortDirents);
+  } catch {
+    return [];
+  }
+}
+
 export async function readFile(path: string) {
   try {
     return await fs.readFile(path, "utf-8");
@@ -41,7 +59,6 @@ export async function readFile(path: string) {
     const code = (err as NodeJS.ErrnoException | null)?.code;
     if (code !== "ENOENT") {
       const errMessage = err instanceof Error ? err.message : String(err);
-
       logger.error(`Error while reading file "${path}": ${errMessage}`);
     }
     return "";
