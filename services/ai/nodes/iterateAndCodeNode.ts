@@ -6,12 +6,11 @@ import {
 } from "qwintly-ai-core";
 import { aiResponse } from "../../../infra/ai/gemini.client.js";
 import { getJobContext } from "../../../job/jobContext.js";
-import { buildCodeIndex } from "../../indexer/buildCodeIndex.service.js";
 import { uploadProjectSnapshot } from "../../snapshot/uploadSnapshot.service.js";
 import { zipProject } from "../../zipProject.service.js";
-import { buildCodegenIndex } from "../indexer/buildCodegenIndex.js";
-import { createAiCoreWorkspaceDeps } from "../helpers/aiCoreDeps.js";
 import { DeployerNode } from "../graph/graph.js";
+import { createAiCoreWorkspaceDeps } from "../helpers/aiCoreDeps.js";
+import { buildCodegenIndex } from "../indexer/buildCodegenIndex.js";
 
 export function makeIterateAndCodeNode(requestType: string): DeployerNode {
   return async (state) => {
@@ -109,7 +108,8 @@ export function makeIterateAndCodeNode(requestType: string): DeployerNode {
                 const head = await readFileImpl(filePath, 1, 200);
                 debugFiles.push({ path: filePath, head });
               } catch (err) {
-                const message = err instanceof Error ? err.message : String(err);
+                const message =
+                  err instanceof Error ? err.message : String(err);
                 debugFiles.push({
                   path: filePath,
                   head: `read_file failed: ${message}`,
@@ -146,9 +146,7 @@ export function makeIterateAndCodeNode(requestType: string): DeployerNode {
 
     await zipProject(ctx);
     await uploadProjectSnapshot(ctx);
-    await buildCodeIndex();
 
     return { iteration, validationFixHistory: history };
   };
 }
-

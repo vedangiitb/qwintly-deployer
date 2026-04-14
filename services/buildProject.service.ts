@@ -1,13 +1,10 @@
 import { CloudBuildClient } from "@google-cloud/cloudbuild";
-import { getJobContext, JobContext } from "../job/jobContext.js";
-import { CodeIndex } from "../types/index/codeIndex.js";
+import { JobContext } from "../job/jobContext.js";
+import { runDeployerRepairFlow } from "./ai/runDeployerRepairFlow.js";
 import { fetchBuildLogs } from "./fetchLogs.service.js";
 import { logger } from "./logger/logger.service.js";
-import { runDeployerRepairFlow } from "./ai/runDeployerRepairFlow.js";
 
-export async function deployWithRepair(codeIndex: CodeIndex | undefined) {
-  if (!codeIndex) throw new Error("Failed to load codeindex.");
-
+export async function deployWithRepair() {
   const result = await runDeployerRepairFlow();
 
   if (result.lastBuildOk) {
