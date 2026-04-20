@@ -3,11 +3,11 @@ import {
   createWorkspaceToolImpls,
   plannerTools,
   runToolLoop,
-  validationNodePrompt,
 } from "qwintly-ai-core";
 import { aiResponse } from "../../../infra/ai/gemini.client.js";
-import { createAiCoreWorkspaceDeps } from "../helpers/aiCoreDeps.js";
 import { DeployerNode } from "../graph/graph.js";
+import { createAiCoreWorkspaceDeps } from "../helpers/aiCoreDeps.js";
+import { validationNodePrompt } from "../prompts/validationNodePrompt.js";
 import {
   parsePlannerTasksJson,
   parsePlannerTasksUnknown,
@@ -22,9 +22,8 @@ export function makeValidatorPlanNode(validatorIndex: unknown): DeployerNode {
     });
 
     const deps = createAiCoreWorkspaceDeps();
-    const { readFileImpl, searchImpl, listDirImpl } = createWorkspaceToolImpls(
-      deps,
-    );
+    const { readFileImpl, searchImpl, listDirImpl } =
+      createWorkspaceToolImpls(deps);
 
     const result = await runToolLoop({
       initialContents: [{ role: "user", parts: [{ text: prompt }] }],
@@ -71,4 +70,3 @@ export function makeValidatorPlanNode(validatorIndex: unknown): DeployerNode {
     return { plannerTasks };
   };
 }
-

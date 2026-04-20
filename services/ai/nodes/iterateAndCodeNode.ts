@@ -1,5 +1,4 @@
 import {
-  codegenNodePrompt,
   codegenTools,
   createWorkspaceToolImpls,
   runToolLoop,
@@ -11,6 +10,7 @@ import { zipProject } from "../../zipProject.service.js";
 import { DeployerNode } from "../graph/graph.js";
 import { createAiCoreWorkspaceDeps } from "../helpers/aiCoreDeps.js";
 import { buildCodegenIndex } from "../indexer/buildCodegenIndex.js";
+import { codegenNodePrompt } from "../prompts/codegenNodePrompt.js";
 
 export function makeIterateAndCodeNode(requestType: string): DeployerNode {
   return async (state) => {
