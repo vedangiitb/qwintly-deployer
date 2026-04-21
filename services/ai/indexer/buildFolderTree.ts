@@ -1,14 +1,14 @@
 import path from "node:path";
-import { projectConfigs } from "../../../data/configs.constants.js";
+import { indexing } from "../../../data/configs.constants.js";
 import { safeReadDir } from "../../../infra/fs/workspace.js";
 import { getJobContext } from "../../../job/jobContext.js";
 
 const INCLUDED_EXTENSIONS = new Set(
-  projectConfigs.indexing.includeExtensions.map((ext) => ext.toLowerCase()),
+  indexing.includeExtensions.map((ext) => ext.toLowerCase()),
 );
 
 const EXCLUDED_DIRS = new Set(
-  projectConfigs.indexing.excludeDirectories.map((dir) => dir.toLowerCase()),
+  indexing.excludeDirectories.map((dir) => dir.toLowerCase()),
 );
 
 const isExcludedDir = (dirName: string) =>
@@ -55,4 +55,3 @@ export const buildFolderTree = async (rootDir?: string): Promise<string> => {
   await walk(effectiveRoot, 1);
   return lines.join("\n");
 };
-
