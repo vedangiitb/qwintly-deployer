@@ -58,7 +58,6 @@ export function makeIterateAndCodeNode(requestType: string): DeployerNode {
         codegenIndex,
         collectedContext: {},
         isNewProject,
-        requestTypeLabel: requestType,
       }).concat(snapshotBlock);
 
       await runToolLoop({
@@ -142,6 +141,7 @@ export function makeIterateAndCodeNode(requestType: string): DeployerNode {
       for (const target of task.targets ?? []) {
         history.push({ file: target, fix: task.description });
       }
+      deps.logger.info(`Completed task ${task.description}`);
     }
 
     await zipProject(ctx);

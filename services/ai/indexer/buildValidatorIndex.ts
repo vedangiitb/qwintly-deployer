@@ -1,13 +1,6 @@
 import { projectConfigs } from "../../../data/configs.constants.js";
+import { ValidatorIndex } from "../../../types/index/index.types.js";
 import { buildFolderTree } from "./buildFolderTree.js";
-
-export type ValidatorIndex = {
-  folderTree: string;
-  projectConfigs: Pick<
-    typeof projectConfigs,
-    "frameworkConfig" | "runtimeConfig" | "toolingConfig"
-  >;
-};
 
 export const buildValidatorIndex = async (
   rootDir?: string,
@@ -23,4 +16,3 @@ export const buildValidatorIndex = async (
     },
   };
 };
-
