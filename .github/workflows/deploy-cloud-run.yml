@@ -52,7 +52,7 @@ jobs:
             --region=${{ vars.REGION }} \
             --cpu=1 \
             --memory=512Mi \
-            --max-retries=1 \
+            --max-retries=0 \
             --task-timeout=900s \
             --service-account=${{ vars.DEPLOYER_SA_EMAIL }} \
             --set-env-vars="SNAPSHOT_BUCKET=${{ vars.SNAPSHOT_BUCKET }},GCP_PROJECT_ID_QWINTLY=${{ vars.GCP_PROJECT_ID_QWINTLY }},GEN_SITES_PROJECT_ID=${{ vars.GEN_SITES_PROJECT_ID }},GEN_SITES_BUILD_SA=${{ vars.GEN_SITES_BUILD_SA }},GEN_SITES_RUNTIME_SA=${{ vars.GEN_SITES_RUNTIME_SA }},ENV_SITE_URL=${{vars.ENV_SITE_URL}}" \

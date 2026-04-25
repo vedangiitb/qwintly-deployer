@@ -1,7 +1,7 @@
 import {
   projectConfigs,
   projectConventions,
-} from "../../data/configs.constants.js";
+} from "../../services/ai/indexer/data/configs.constants.js";
 
 export type CodegenIndex = {
   folderTree: string;
@@ -11,7 +11,7 @@ export type CodegenIndex = {
   >;
   projectConventions: Pick<
     typeof projectConventions,
-    "importsConventions" | "stylingConventions" | "uiArchitecture"
+    "importsConventions" | "uiArchitecture"
   >;
 };
 
@@ -27,8 +27,6 @@ export type PlannerIndex = {
     | "importsConventions"
     | "routingConventions"
     | "namingConventions"
-    | "componentConventions"
-    | "stylingConventions"
   >;
 };
 
