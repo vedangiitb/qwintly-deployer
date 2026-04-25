@@ -1,6 +1,6 @@
-import { projectConfigs } from "../../../data/configs.constants.js";
 import { ValidatorIndex } from "../../../types/index/index.types.js";
 import { buildFolderTree } from "./buildFolderTree.js";
+import { projectConfigs } from "./data/configs.constants.js";
 
 export const buildValidatorIndex = async (
   rootDir?: string,

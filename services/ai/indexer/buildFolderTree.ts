@@ -1,5 +1,5 @@
 import path from "node:path";
-import { indexing } from "../../../data/configs.constants.js";
+import { indexing } from "./data/configs.constants.js";
 import { safeReadDir } from "../../../infra/fs/workspace.js";
 import { getJobContext } from "../../../job/jobContext.js";
 

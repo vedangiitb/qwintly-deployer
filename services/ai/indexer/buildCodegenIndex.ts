@@ -1,9 +1,9 @@
+import { CodegenIndex } from "../../../types/index/index.types.js";
+import { buildFolderTree } from "./buildFolderTree.js";
 import {
   projectConfigs,
   projectConventions,
-} from "../../../data/configs.constants.js";
-import { CodegenIndex } from "../../../types/index/index.types.js";
-import { buildFolderTree } from "./buildFolderTree.js";
+} from "./data/configs.constants.js";
 export const buildCodegenIndex = async (
   rootDir?: string,
 ): Promise<CodegenIndex> => {
@@ -17,7 +17,6 @@ export const buildCodegenIndex = async (
     },
     projectConventions: {
       importsConventions: projectConventions.importsConventions,
-      stylingConventions: projectConventions.stylingConventions,
       uiArchitecture: projectConventions.uiArchitecture,
     },
   };
