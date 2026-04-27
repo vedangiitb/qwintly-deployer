@@ -22,5 +22,5 @@ export async function deployerFlow() {
     retries: 1,
   });
 
-  logger.status("SUCCESS");
+  logger.status("SUCCESS", { phase: "done" });
 }

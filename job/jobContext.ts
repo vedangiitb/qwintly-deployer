@@ -36,3 +36,7 @@ export function getJobContext(): JobContext {
 }
 
 export type JobContext = ReturnType<typeof createJobContext>;
+
+export function setJobContext(ctx: JobContext) {
+  cachedJobContext = ctx;
+}

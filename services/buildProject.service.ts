@@ -103,7 +103,10 @@ export async function buildDeploy(ctx: JobContext) {
 
   try {
     const [buildResult] = await operation.promise();
-    console.log(buildResult);
+    logger.info("Cloud Build operation completed", {
+      buildId,
+      status: buildResult.status,
+    });
 
     if (buildResult.status === 3) {
       return { ok: true };
@@ -113,7 +116,7 @@ export async function buildDeploy(ctx: JobContext) {
 
     return { ok: false, logs };
   } catch (err: any) {
-    logger.error(`Cloud Build threw: ${err.message}`);
+    logger.error("Cloud Build threw", err, { buildId });
   }
   const logs = await fetchBuildLogs(buildId, ctx);
 
