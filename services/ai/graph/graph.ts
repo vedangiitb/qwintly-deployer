@@ -18,7 +18,7 @@ export function createDeployerRepairGraph(nodes: DeployerNodes) {
 
     const errors = state.validationErrors ?? [];
     if (errors.length === 0) return "end";
-    if ((state.iteration ?? 0) < 4) return "repair";
+    if ((state.iteration ?? 0) < 3) return "repair";
 
     return "end";
   };
@@ -36,4 +36,3 @@ export function createDeployerRepairGraph(nodes: DeployerNodes) {
     .addEdge("iterateAndCode", "validate")
     .compile();
 }
-
