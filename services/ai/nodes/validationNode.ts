@@ -1,21 +1,23 @@
+import { EVENT_TYPES } from "@vedangiitb/qwintly-core";
 import { getJobContext } from "../../../job/jobContext.js";
-import { logger } from "../../logger/logger.service.js";
-import { buildDeploy } from "../../buildProject.service.js";
 import { parseValidationErrors } from "../../../utils/parseErrors.js";
+import { buildDeploy } from "../../buildProject.service.js";
+import { getQwintlyCore } from "../../core/qwintlyCore.service.js";
 import { DeployerNode } from "../graph/graph.js";
 
 export const validationNode: DeployerNode = async (state) => {
+  const core = getQwintlyCore();
   const ctx = getJobContext();
   const attempt = (state.iteration ?? 0) + 1;
-  logger.status(`Validating build & deploy (attempt ${attempt})…`, {
-    phase: "validate",
-    iteration: state.iteration ?? 0,
-  });
+  await core.streamLog(
+    `Validating build & deploy (attempt ${attempt})…`,
+    EVENT_TYPES.STEP_STARTED,
+  );
   const result = await buildDeploy(ctx);
 
   if (result.ok) {
-    logger.status("Build & deploy succeeded", { phase: "validate" });
-    logger.info("Build & deploy succeeded");
+    await core.streamLog("Build & deploy succeeded", EVENT_TYPES.STEP_FINISHED);
+    console.info("Build & deploy succeeded");
     return {
       lastBuildOk: true,
       lastBuildLogs: undefined,
@@ -26,8 +28,8 @@ export const validationNode: DeployerNode = async (state) => {
 
   if (!result.logs) {
     const msg = "Failed to fetch logs from failed build";
-    logger.status(`Build failed: ${msg}`, { phase: "failed" });
-    logger.error(msg);
+    await core.streamLog(`Build failed: ${msg}`, EVENT_TYPES.STEP_ERROR);
+    console.error(msg);
     return {
       lastBuildOk: false,
       lastBuildLogs: undefined,
@@ -40,8 +42,8 @@ export const validationNode: DeployerNode = async (state) => {
 
   if (!errors || errors.length === 0) {
     const msg = "Build failed, but no ESLint/TS/Next errors detected";
-    logger.status(`Build failed: ${msg}`, { phase: "failed" });
-    logger.error(msg, { attempt });
+    await core.streamLog(`Build failed: ${msg}`, EVENT_TYPES.STEP_ERROR);
+    console.error(msg, { attempt });
     return {
       lastBuildOk: false,
       lastBuildLogs: result.logs,
@@ -50,12 +52,11 @@ export const validationNode: DeployerNode = async (state) => {
     };
   }
 
-  logger.status(`Build failed with ${errors.length} issue(s)`, {
-    phase: "validate",
-    progress: { current: errors.length, total: errors.length, unit: "issues" },
-    iteration: state.iteration ?? 0,
-  });
-  logger.warn("Build failed with validation errors", {
+  await core.streamLog(
+    `Build failed with ${errors.length} issue(s)`,
+    EVENT_TYPES.STEP_ERROR,
+  );
+  console.warn("Build failed with validation errors", {
     count: errors.length,
     attempt,
   });

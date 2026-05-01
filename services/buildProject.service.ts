@@ -2,13 +2,12 @@ import { CloudBuildClient } from "@google-cloud/cloudbuild";
 import { JobContext } from "../job/jobContext.js";
 import { runDeployerRepairFlow } from "./ai/runDeployerRepairFlow.js";
 import { fetchBuildLogs } from "./fetchLogs.service.js";
-import { logger } from "./logger/logger.service.js";
 
 export async function deployWithRepair() {
   const result = await runDeployerRepairFlow();
 
   if (result.lastBuildOk) {
-    logger.info("Build & deploy succeeded");
+    console.info("Build & deploy succeeded");
     return;
   }
 
@@ -103,7 +102,7 @@ export async function buildDeploy(ctx: JobContext) {
 
   try {
     const [buildResult] = await operation.promise();
-    logger.info("Cloud Build operation completed", {
+    console.info("Cloud Build operation completed", {
       buildId,
       status: buildResult.status,
     });
@@ -116,7 +115,7 @@ export async function buildDeploy(ctx: JobContext) {
 
     return { ok: false, logs };
   } catch (err: any) {
-    logger.error("Cloud Build threw", err, { buildId });
+    console.error("Cloud Build threw", err, { buildId });
   }
   const logs = await fetchBuildLogs(buildId, ctx);
 

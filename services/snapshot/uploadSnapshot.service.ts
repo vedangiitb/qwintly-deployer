@@ -1,6 +1,5 @@
 import { uploadFileToGCS } from "../../infra/gcs/upload.js";
 import { JobContext } from "../../job/jobContext.js";
-import { logger } from "../logger/logger.service.js";
 
 export async function uploadProjectSnapshot(ctx: JobContext) {
   const zipPath = ctx.zipPath;
@@ -8,7 +7,7 @@ export async function uploadProjectSnapshot(ctx: JobContext) {
   const bucketName = ctx.snapshotBucket;
   const projectId = ctx.targetProjectId;
   const destination = `projects/${chatId}.zip`;
-  logger.info(
+  console.info(
     `Uploading project snapshot "${zipPath}" to bucket "${bucketName}" at "${destination}" (projectId="${projectId}")`,
   );
   if (!projectId || !bucketName) throw new Error("Missing required env vars");

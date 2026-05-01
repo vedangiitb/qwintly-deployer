@@ -1,5 +1,5 @@
+import { ProjectInfo } from "@vedangiitb/qwintly-core";
 import { DBRepository } from "./repository.js";
-import { ProjectInfo } from "../types/index/projectInfo.types.js";
 
 export class ContextRepository extends DBRepository {
   /*
