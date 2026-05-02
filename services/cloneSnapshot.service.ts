@@ -1,9 +1,8 @@
 import { ProjectPathConstants } from "../data/project.constants.js";
-import { createFolder, removeFolder } from "../infra/fs/workspace.js";
+import { createFolder, removeFolder } from "@vedangiitb/qwintly-core";
 import { extractZip } from "../infra/fs/zipFolder.js";
 import { downloadToDestinationGCS } from "../infra/gcs/download.js";
 import { getJobContext } from "../job/jobContext.js";
-import { logger } from "./logger/logger.service.js";
 
 export async function cloneSnapshot() {
   const ctx = getJobContext();
@@ -14,7 +13,7 @@ export async function cloneSnapshot() {
   const zipPath = ProjectPathConstants(chatId).snapShotPath;
   const tmpZipPath = ProjectPathConstants(chatId).tmpZipPath;
 
-  logger.info(
+  console.info(
     `Cloning template "${zipPath}" from bucket "${bucketName}" into "${workspacePath}")`,
   );
 
@@ -29,5 +28,5 @@ export async function cloneSnapshot() {
     await removeFolder(tmpZipPath);
   }
 
-  logger.info(`Template ready at "${workspacePath}"`);
+  console.info(`Template ready at "${workspacePath}"`);
 }

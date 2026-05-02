@@ -1,11 +1,14 @@
+import { EVENT_TYPES } from "@vedangiitb/qwintly-core";
 import { step } from "../job/step.js";
 import { deployWithRepair } from "../services/buildProject.service.js";
 import { cloneSnapshot } from "../services/cloneSnapshot.service.js";
+import { getQwintlyCore } from "../services/core/qwintlyCore.service.js";
 import { getProjectDetails } from "../services/getProjectDetails.service.js";
-import { logger } from "../services/logger/logger.service.js";
 import { makeServicePublic } from "../services/makePublic.service.js";
 
 export async function deployerFlow() {
+  const core = await getQwintlyCore();
+
   await step("Cloning Project Snapshot", () => cloneSnapshot(), {
     retries: 0,
   });
@@ -22,5 +25,5 @@ export async function deployerFlow() {
     retries: 1,
   });
 
-  logger.status("SUCCESS", { phase: "done" });
+  await core.streamLog("SUCCESS", EVENT_TYPES.GENERATION_COMPLETED);
 }
