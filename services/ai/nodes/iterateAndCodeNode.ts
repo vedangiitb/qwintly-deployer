@@ -15,7 +15,7 @@ import { codegenNodePrompt } from "../prompts/codegenNodePrompt.js";
 
 export function makeIterateAndCodeNode(requestType: string): DeployerNode {
   return async (state) => {
-    const core = getQwintlyCore();
+    const core = await getQwintlyCore();
     const ctx = getJobContext();
 
     const iteration = (state.iteration ?? 0) + 1;

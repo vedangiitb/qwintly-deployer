@@ -9,7 +9,7 @@ import { makeValidatorPlanNode } from "./nodes/validatorPlanNode.js";
 
 export async function runDeployerRepairFlow() {
   const ctx = getJobContext();
-  const core = getQwintlyCore();
+  const core = await getQwintlyCore();
   const validatorIndex = await core.buildValidatorIdx();
 
   const graph = createDeployerRepairGraph({

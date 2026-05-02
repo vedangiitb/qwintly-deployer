@@ -6,7 +6,7 @@ import { getQwintlyCore } from "../../core/qwintlyCore.service.js";
 import { DeployerNode } from "../graph/graph.js";
 
 export const validationNode: DeployerNode = async (state) => {
-  const core = getQwintlyCore();
+  const core = await getQwintlyCore();
   const ctx = getJobContext();
   const attempt = (state.iteration ?? 0) + 1;
   await core.streamLog(

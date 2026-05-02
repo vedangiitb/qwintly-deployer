@@ -7,7 +7,7 @@ import { getProjectDetails } from "../services/getProjectDetails.service.js";
 import { makeServicePublic } from "../services/makePublic.service.js";
 
 export async function deployerFlow() {
-  const core = getQwintlyCore();
+  const core = await getQwintlyCore();
 
   await step("Cloning Project Snapshot", () => cloneSnapshot(), {
     retries: 0,

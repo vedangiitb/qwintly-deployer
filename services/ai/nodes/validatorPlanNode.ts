@@ -14,7 +14,7 @@ import {
 
 export function makeValidatorPlanNode(validatorIndex: unknown): DeployerNode {
   return async (state) => {
-    const core = getQwintlyCore();
+    const core = await getQwintlyCore();
 
     await core.streamLog(
       "AI: Planning fixes for validation issues…",

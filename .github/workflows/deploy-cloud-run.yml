@@ -56,4 +56,4 @@ jobs:
             --task-timeout=900s \
             --service-account=${{ vars.DEPLOYER_SA_EMAIL }} \
             --set-env-vars="SNAPSHOT_BUCKET=${{ vars.SNAPSHOT_BUCKET }},GCP_PROJECT_ID_QWINTLY=${{ vars.GCP_PROJECT_ID_QWINTLY }},GEN_SITES_PROJECT_ID=${{ vars.GEN_SITES_PROJECT_ID }},GEN_SITES_BUILD_SA=${{ vars.GEN_SITES_BUILD_SA }},GEN_SITES_RUNTIME_SA=${{ vars.GEN_SITES_RUNTIME_SA }},ENV_SITE_URL=${{vars.ENV_SITE_URL}},NEXT_PUBLIC_SUPABASE_URL=${{vars.NEXT_PUBLIC_SUPABASE_URL}},UPSTASH_REDIS_REST_URL_GEN_EVENTS=${{vars.UPSTASH_REDIS_REST_URL_GEN_EVENTS}}" \
-            --set-secrets="SUPABASE_SECRET_KEY=supabase-secret-key:latest,GEMINI_API_KEY=gemini-api-key:latest,UPSTASH_REDIS_REST_TOKEN_GEN_EVENTS=upstash-redis-rest-token-gen-events:latest"
+            --set-secrets="SUPABASE_SECRET_KEY=supabase-secret-key:latest,UPSTASH_REDIS_REST_TOKEN_GEN_EVENTS=upstash-redis-rest-token-gen-events:latest,PUBLISH_SECRET=publish-secret:latest"
