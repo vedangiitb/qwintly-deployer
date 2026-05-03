@@ -60,6 +60,22 @@ export const validationNode: DeployerNode = async (state) => {
     count: errors.length,
     attempt,
   });
+
+  console.group(`Validation errors (${errors.length})`);
+  console.table(
+    errors.map((e, i) => ({
+      "#": i + 1,
+      type: e.type,
+      filePath: e.filePath ?? "",
+      summary: e.message.split("\n")[0] ?? "",
+    })),
+  );
+  for (const [i, e] of errors.entries()) {
+    console.group(`${i + 1}. [${e.type}] ${e.filePath ?? "unknown"}`);
+    console.log(e.message);
+    console.groupEnd();
+  }
+  console.groupEnd();
   return {
     lastBuildOk: false,
     lastBuildLogs: result.logs,
