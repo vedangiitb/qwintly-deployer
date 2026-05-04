@@ -175,6 +175,7 @@ export function makeIterateAndCodeNode(requestType: string): DeployerNode {
       await core.streamLog(
         `AI: Done fix ${taskIndex}/${totalTasks} (${formatDurationMs(taskElapsedMs)})`,
         EVENT_TYPES.STEP_FINISHED,
+        true,
       );
       await core.streamLog("Completed planner task", EVENT_TYPES.STEP_FINISHED);
     }

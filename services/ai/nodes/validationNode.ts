@@ -28,7 +28,7 @@ export const validationNode: DeployerNode = async (state) => {
 
   if (!result.logs) {
     const msg = "Failed to fetch logs from failed build";
-    await core.streamLog(`Build failed: ${msg}`, EVENT_TYPES.STEP_ERROR);
+    await core.streamLog(`Build failed: ${msg}`, EVENT_TYPES.STEP_ERROR, true);
     console.error(msg);
     return {
       lastBuildOk: false,
@@ -42,7 +42,7 @@ export const validationNode: DeployerNode = async (state) => {
 
   if (!errors || errors.length === 0) {
     const msg = "Build failed, but no ESLint/TS/Next errors detected";
-    await core.streamLog(`Build failed: ${msg}`, EVENT_TYPES.STEP_ERROR);
+    await core.streamLog(`Build failed: ${msg}`, EVENT_TYPES.STEP_ERROR, true);
     console.error(msg, { attempt });
     return {
       lastBuildOk: false,
@@ -55,6 +55,7 @@ export const validationNode: DeployerNode = async (state) => {
   await core.streamLog(
     `Build failed with ${errors.length} issue(s)`,
     EVENT_TYPES.STEP_ERROR,
+    true,
   );
   console.warn("Build failed with validation errors", {
     count: errors.length,
