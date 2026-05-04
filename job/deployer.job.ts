@@ -1,13 +1,35 @@
+import { EVENT_TYPES } from "@vedangiitb/qwintly-core";
 import { deployerFlow } from "../flow/deployer.flow.js";
+import { getQwintlyCore } from "../services/core/qwintlyCore.service.js";
+import { finishGenerationSession } from "../services/genSession.service.js";
 import { safeExit } from "../utils/gracefulShutdown.js";
+import { getJobContext } from "./jobContext.js";
 
 export async function deployer() {
+  const ctx = getJobContext();
+  const core = await getQwintlyCore();
+  let success = false;
+  let exitCode = 0;
+  let exitMessage = "SUCCESS";
   try {
     await deployerFlow();
-    await safeExit(0, "SUCCESS");
+    await core.streamLog(
+      "Generation Successfully Completed",
+      EVENT_TYPES.GENERATION_COMPLETED,
+    );
+    success = true;
   } catch (err: any) {
     console.error("Deployer job failed", err);
-
-    await safeExit(1, err?.message || "Unknown error");
+    await core.streamLog("Generation failed", EVENT_TYPES.GENERATION_FAILED);
+    exitCode = 1;
+    exitMessage = err?.message || "Unknown error";
+  } finally {
+    await finishGenerationSession(
+      ctx.chatId,
+      ctx.sessionId,
+      ctx.planId,
+      success,
+    );
+    await safeExit(exitCode, exitMessage);
   }
 }

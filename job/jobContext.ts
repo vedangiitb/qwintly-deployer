@@ -37,11 +37,13 @@ export function createJobContext() {
   const requestType = normalizeString(tokenPayload.requestType);
   const provider = normalizeString(tokenPayload.provider);
   const userId = normalizeString(tokenPayload.userId);
+  const planId = normalizeString(tokenPayload.planId);
 
   return {
     chatId: chatId,
     sessionId: SESSION_ID!,
     requestType: requestType,
+    planId: planId,
     workspace: `/tmp/workspace`,
     zipPath: `/tmp/${chatId}.zip`,
     snapshotBucket: SNAPSHOT_BUCKET || "gen-project-snapshots",
