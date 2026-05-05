@@ -72,6 +72,7 @@ export function makeValidatorPlanNode(validatorIndex: unknown): DeployerNode {
     await core.streamLog(
       `AI: Fix plan ready (${plannerTasks.length} tasks)`,
       EVENT_TYPES.STEP_FINISHED,
+      true
     );
     return { plannerTasks };
   };

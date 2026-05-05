@@ -34,17 +34,23 @@ export async function runDeployerRepairFlow() {
   );
   const result = await graph.invoke(initialState);
   if (result.lastBuildOk) {
-    await core.streamLog("AI: Build & deploy OK", EVENT_TYPES.STEP_FINISHED);
+    await core.streamLog(
+      "AI: Build & deploy OK",
+      EVENT_TYPES.STEP_FINISHED,
+      true,
+    );
   } else if (result.unrecoverableError) {
     await core.streamLog(
       `AI: Stopped (unrecoverable): ${result.unrecoverableError}`,
       EVENT_TYPES.STEP_ERROR,
+      true,
     );
   } else {
     const remaining = (result.validationErrors ?? []).length;
     await core.streamLog(
       `AI: Stopped with ${remaining} remaining issue(s)`,
       EVENT_TYPES.STEP_ERROR,
+      true,
     );
   }
   return result;

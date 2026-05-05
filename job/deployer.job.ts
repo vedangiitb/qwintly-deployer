@@ -16,11 +16,16 @@ export async function deployer() {
     await core.streamLog(
       "Generation Successfully Completed",
       EVENT_TYPES.GENERATION_COMPLETED,
+      true,
     );
     success = true;
   } catch (err: any) {
     console.error("Deployer job failed", err);
-    await core.streamLog("Generation failed", EVENT_TYPES.GENERATION_FAILED);
+    await core.streamLog(
+      "Generation failed",
+      EVENT_TYPES.GENERATION_FAILED,
+      true,
+    );
     exitCode = 1;
     exitMessage = err?.message || "Unknown error";
   } finally {
