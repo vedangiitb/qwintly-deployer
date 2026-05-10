@@ -3,7 +3,6 @@ import {
   GCP_PROJECT_ID_QWINTLY,
   GEN_SITES_PROJECT_ID,
   JOB_TOKEN,
-  SESSION_ID,
   SNAPSHOT_BUCKET,
 } from "../config/env.js";
 import jwt from "jsonwebtoken";
@@ -18,12 +17,13 @@ export function createJobContext() {
   }
 
   let tokenPayload: {
-    userId: string;
-    provider: string;
-    model: string;
     chatId: string;
     planId: string;
     requestType: string;
+    provider: string;
+    model: string;
+    userId: string;
+    sessionId: string;
   };
   try {
     tokenPayload = jwt.verify(
@@ -40,10 +40,11 @@ export function createJobContext() {
   const userId = normalizeString(tokenPayload.userId);
   const planId = normalizeString(tokenPayload.planId);
   const model = normalizeString(tokenPayload.model);
+  const sessionId = normalizeString(tokenPayload.sessionId);
 
   return {
     chatId: chatId,
-    sessionId: SESSION_ID!,
+    sessionId: sessionId,
     requestType: requestType,
     planId: planId,
     workspace: `/tmp/workspace`,

@@ -4,6 +4,7 @@ import { getQwintlyCore } from "../services/core/qwintlyCore.service.js";
 import { finishGenerationSession } from "../services/genSession.service.js";
 import { safeExit } from "../utils/gracefulShutdown.js";
 import { getJobContext } from "./jobContext.js";
+import { registerCleanup } from "../services/cleanup.service.js";
 
 export async function deployer() {
   const ctx = getJobContext();
@@ -12,6 +13,7 @@ export async function deployer() {
   let exitCode = 0;
   let exitMessage = "SUCCESS";
   try {
+    registerCleanup()
     await deployerFlow();
     await core.streamLog(
       "Generation Successfully Completed",
