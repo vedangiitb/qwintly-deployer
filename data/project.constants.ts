@@ -6,13 +6,11 @@ export const ProjectRequestType = {
 export const ProjectUrl = (chatId: string, envUrl: string) =>
   `${chatId}-${envUrl}`;
 
-export const ProjectPathConstants = (chatId: string) => {
+export const ProjectPathConstants = (snapshotId: string) => {
   return {
-    baseCodeIndex: "indexes/default-code_index.json",
     baseTemplate: "base-template.zip",
-    codeIndex: `indexes/code_index-${chatId}.json`,
-    tmpZipPath: `/tmp/template_${chatId}.zip`,
-    snapShotPath: `projects/${chatId}.zip`,
+    tmpZipPath: `/tmp/template_${snapshotId}.zip`,
+    snapShotPath: `projects/${snapshotId}.zip`,
   };
 };
 export type ProjectRequestType =

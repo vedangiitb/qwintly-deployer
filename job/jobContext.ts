@@ -24,6 +24,7 @@ export function createJobContext() {
     model: string;
     userId: string;
     sessionId: string;
+    snapshotId: string;
   };
   try {
     tokenPayload = jwt.verify(
@@ -41,12 +42,14 @@ export function createJobContext() {
   const planId = normalizeString(tokenPayload.planId);
   const model = normalizeString(tokenPayload.model);
   const sessionId = normalizeString(tokenPayload.sessionId);
+  const snapshotId = normalizeString(tokenPayload.snapshotId);
 
   return {
     chatId: chatId,
     sessionId: sessionId,
     requestType: requestType,
     planId: planId,
+    snapshotId: snapshotId,
     workspace: `/tmp/workspace`,
     zipPath: `/tmp/${chatId}.zip`,
     snapshotBucket: SNAPSHOT_BUCKET || "gen-project-snapshots",
