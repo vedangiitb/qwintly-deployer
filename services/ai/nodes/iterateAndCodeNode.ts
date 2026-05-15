@@ -1,4 +1,5 @@
 import {
+  codegenPrompt,
   codegenTools,
   createWorkspaceToolImpls,
   EVENT_TYPES,
@@ -11,21 +12,25 @@ import { uploadProjectSnapshot } from "../../snapshot/uploadSnapshot.service.js"
 import { zipProject } from "../../zipProject.service.js";
 import { DeployerNode } from "../graph/graph.js";
 import { createWorkspaceDeps } from "../helpers/aiCoreDeps.js";
-import { codegenNodePrompt } from "../prompts/codegenNodePrompt.js";
 
-export function makeIterateAndCodeNode(requestType: string): DeployerNode {
+export function makeIterateAndCodeNode(): DeployerNode {
   return async (state) => {
     const core = await getQwintlyCore();
     const ctx = getJobContext();
-
     const iteration = (state.iteration ?? 0) + 1;
     const history = [...(state.validationFixHistory ?? [])];
 
     const deps = createWorkspaceDeps();
-    const { readFileImpl, writeFileImpl, applyPatchImpl } =
-      createWorkspaceToolImpls(deps);
+    const {
+      readFileImpl,
+      createNewRouteImpl,
+      insertElementImpl,
+      deleteElementImpl,
+      updatePropsImpl,
+      updateClassNameImpl,
+    } = createWorkspaceToolImpls(deps);
 
-    const isNewProject = String(requestType ?? "").toUpperCase() === "NEW";
+    const isNewProject = false;
 
     const tasks = state.plannerTasks ?? [];
     const totalTasks = tasks.length;
@@ -48,36 +53,12 @@ export function makeIterateAndCodeNode(requestType: string): DeployerNode {
       const codegenIndex = await core.buildCodegenIdx();
       if (!codegenIndex) throw new Error("Could not build codegen index");
 
-      const targetSnapshots: Array<{ path: string; content: string }> = [];
-      for (const target of task.targets ?? []) {
-        try {
-          const content = await readFileImpl(target, 1, 200);
-          targetSnapshots.push({ path: target, content });
-        } catch (err) {
-          const message = err instanceof Error ? err.message : String(err);
-          targetSnapshots.push({
-            path: target,
-            content: `read_file failed: ${message}`,
-          });
-        }
-      }
-
-      const snapshotBlock =
-        targetSnapshots.length > 0
-          ? `\n\nTARGET FILE SNAPSHOTS (first 200 lines):\n${targetSnapshots
-              .map(
-                (s) =>
-                  `--- ${s.path} ---\n${s.content}\n--- end ${s.path} ---\n`,
-              )
-              .join("\n")}`
-          : "";
-
-      const prompt = codegenNodePrompt({
+      const prompt = codegenPrompt({
         task,
         codegenIndex,
-        collectedContext: {},
+        collectedContext: state.collectedContext,
         isNewProject,
-      }).concat(snapshotBlock);
+      });
 
       await withStatusHeartbeat(
         () =>
@@ -99,53 +80,50 @@ export function makeIterateAndCodeNode(requestType: string): DeployerNode {
                 const content = await readFileImpl(path, startLine, endLine);
                 return { path, content };
               },
-              write_file: async (args) => {
-                const path = String(args.path ?? "");
-                const content = String(args.content ?? "");
-                return await writeFileImpl(path, content);
+              create_new_route: async (args) => {
+                const parentRoute = String(args.parent_route ?? "");
+                const routeName = String(args.route_name ?? "");
+                const result = await createNewRouteImpl(parentRoute, routeName);
+                return { result };
               },
-              apply_patch: async (args) => {
-                const patchString = String(args.patch_string ?? "");
-                const result = await applyPatchImpl(patchString);
-
-                if ((result as any)?.success !== false) return result;
-
-                const error = String((result as any)?.error ?? "");
-                const filePathMatches = Array.from(
-                  error.matchAll(
-                    /(?:Update|Add|Delete) File failed for \"([^\"]+)\"/g,
-                  ),
-                ).map((m) => m[1]);
-
-                const uniquePaths = Array.from(new Set(filePathMatches)).slice(
-                  0,
-                  3,
+              insert_element: async (args) => {
+                const route = String(args.route ?? "");
+                const parent_id = String(args.parent_id ?? "");
+                const element: any = args.element;
+                const result = await insertElementImpl(
+                  route,
+                  parent_id,
+                  element,
                 );
-                const debugFiles: Array<{ path: string; head: string }> = [];
-
-                for (const filePath of uniquePaths) {
-                  try {
-                    const head = await readFileImpl(filePath, 1, 200);
-                    debugFiles.push({ path: filePath, head });
-                  } catch (err) {
-                    const message =
-                      err instanceof Error ? err.message : String(err);
-                    debugFiles.push({
-                      path: filePath,
-                      head: `read_file failed: ${message}`,
-                    });
-                  }
-                }
-
-                return {
-                  ...result,
-                  debug: {
-                    files: debugFiles,
-                    hint:
-                      "apply_patch failed because the expected context didn't match the current file. " +
-                      "Regenerate the patch from the snapshots above; for large rewrites, use Delete+Add instead of Update.",
-                  },
-                };
+                return { result };
+              },
+              delete_element: async (args) => {
+                const route = String(args.route ?? "");
+                const element_id = String(args.element_id ?? "");
+                const result = await deleteElementImpl(route, element_id);
+                return { result };
+              },
+              update_props: async (args) => {
+                const route = String(args.route ?? "");
+                const element_id = String(args.element_id ?? "");
+                const props: any = args.props;
+                const result = await updatePropsImpl({
+                  route,
+                  element_id,
+                  ...props,
+                });
+                return { result };
+              },
+              update_class_name: async (args) => {
+                const route = String(args.route ?? "");
+                const element_id = String(args.element_id ?? "");
+                const class_name = String(args.class_name ?? "");
+                const result = await updateClassNameImpl(
+                  route,
+                  element_id,
+                  class_name,
+                );
+                return { result };
               },
               submit_codegen_done: async (args) => {
                 return {
@@ -154,7 +132,7 @@ export function makeIterateAndCodeNode(requestType: string): DeployerNode {
                 };
               },
             },
-            25,
+            30,
             ["submit_codegen_done"],
           ),
         {

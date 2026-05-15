@@ -1,10 +1,10 @@
 import { EVENT_TYPES } from "@vedangiitb/qwintly-core";
 import { deployerFlow } from "../flow/deployer.flow.js";
+import { registerCleanup } from "../services/cleanup.service.js";
 import { getQwintlyCore } from "../services/core/qwintlyCore.service.js";
-import { finishGenerationSession } from "../services/genSession.service.js";
+import { finishDeploymentSession } from "../services/genSession.service.js";
 import { safeExit } from "../utils/gracefulShutdown.js";
 import { getJobContext } from "./jobContext.js";
-import { registerCleanup } from "../services/cleanup.service.js";
 
 export async function deployer() {
   const ctx = getJobContext();
@@ -13,7 +13,7 @@ export async function deployer() {
   let exitCode = 0;
   let exitMessage = "SUCCESS";
   try {
-    registerCleanup()
+    registerCleanup();
     await deployerFlow();
     await core.streamLog(
       "Generation Successfully Completed",
@@ -31,12 +31,7 @@ export async function deployer() {
     exitCode = 1;
     exitMessage = err?.message || "Unknown error";
   } finally {
-    await finishGenerationSession(
-      ctx.chatId,
-      ctx.sessionId,
-      ctx.planId,
-      success,
-    );
+    await finishDeploymentSession(ctx.sessionId, success);
     await safeExit(exitCode, exitMessage);
   }
 }

@@ -1,5 +1,6 @@
-import test from "node:test";
+import { defaultCollectedContext } from "@vedangiitb/qwintly-core";
 import assert from "node:assert/strict";
+import test from "node:test";
 import { createDeployerRepairGraph } from "../../services/ai/graph/graph.js";
 import { DeployerAgentState } from "../../services/ai/graph/state.js";
 
@@ -37,6 +38,7 @@ test("deployer repair graph: repairs once then ends when build passes", async ()
     plannerTasks: [],
     validationErrors: [],
     validationFixHistory: [],
+    collectedContext: defaultCollectedContext,
     lastBuildOk: false,
     lastBuildLogs: undefined,
     unrecoverableError: undefined,
@@ -76,6 +78,7 @@ test("deployer repair graph: stops after 3 repair passes even if bugs remain", a
     validationErrors: [],
     validationFixHistory: [],
     lastBuildOk: false,
+    collectedContext: defaultCollectedContext,
     lastBuildLogs: undefined,
     unrecoverableError: undefined,
   };
@@ -110,6 +113,7 @@ test("deployer repair graph: ends immediately on unrecoverable error", async () 
     iteration: 0,
     plannerTasks: [],
     validationErrors: [],
+    collectedContext: defaultCollectedContext,
     validationFixHistory: [],
     lastBuildOk: false,
     lastBuildLogs: undefined,
@@ -121,4 +125,3 @@ test("deployer repair graph: ends immediately on unrecoverable error", async () 
   assert.equal(planCalls, 0);
   assert.equal(codeCalls, 0);
 });
-

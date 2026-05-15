@@ -1,26 +1,27 @@
 import { EVENT_TYPES } from "@vedangiitb/qwintly-core";
-import { getJobContext } from "../../job/jobContext.js";
 import { getQwintlyCore } from "../core/qwintlyCore.service.js";
 import { createDeployerRepairGraph } from "./graph/graph.js";
 import { DeployerAgentState } from "./graph/state.js";
 import { makeIterateAndCodeNode } from "./nodes/iterateAndCodeNode.js";
 import { validationNode } from "./nodes/validationNode.js";
 import { makeValidatorPlanNode } from "./nodes/validatorPlanNode.js";
+import { fetchProjectContext } from "../fetchProjectContext.js";
 
 export async function runDeployerRepairFlow() {
-  const ctx = getJobContext();
   const core = await getQwintlyCore();
   const validatorIndex = await core.buildValidatorIdx();
+  const collectedContext = await fetchProjectContext();
 
   const graph = createDeployerRepairGraph({
     validate: validationNode,
     validationPlan: makeValidatorPlanNode(validatorIndex),
-    iterateAndCode: makeIterateAndCodeNode(ctx.requestType),
+    iterateAndCode: makeIterateAndCodeNode(),
   });
 
   const initialState: DeployerAgentState = {
     iteration: 0,
     plannerTasks: [],
+    collectedContext,
     validationErrors: [],
     validationFixHistory: [],
     lastBuildOk: false,

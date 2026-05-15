@@ -1,11 +1,11 @@
 // Session/workspace/env context
+import jwt from "jsonwebtoken";
 import {
   GCP_PROJECT_ID_QWINTLY,
   GEN_SITES_PROJECT_ID,
   JOB_TOKEN,
   SNAPSHOT_BUCKET,
 } from "../config/env.js";
-import jwt from "jsonwebtoken";
 
 function normalizeString(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
@@ -19,10 +19,9 @@ export function createJobContext() {
   let tokenPayload: {
     chatId: string;
     planId: string;
-    requestType: string;
-    provider: string;
-    model: string;
     userId: string;
+    model: string;
+    provider: string;
     sessionId: string;
     snapshotId: string;
   };
@@ -36,22 +35,23 @@ export function createJobContext() {
   }
 
   const chatId = normalizeString(tokenPayload.chatId);
-  const requestType = normalizeString(tokenPayload.requestType);
-  const provider = normalizeString(tokenPayload.provider);
-  const userId = normalizeString(tokenPayload.userId);
   const planId = normalizeString(tokenPayload.planId);
+  const userId = normalizeString(tokenPayload.userId);
   const model = normalizeString(tokenPayload.model);
+  const provider = normalizeString(tokenPayload.provider);
   const sessionId = normalizeString(tokenPayload.sessionId);
   const snapshotId = normalizeString(tokenPayload.snapshotId);
 
   return {
     chatId: chatId,
     sessionId: sessionId,
-    requestType: requestType,
     planId: planId,
     snapshotId: snapshotId,
     workspace: `/tmp/workspace`,
-    zipPath: `/tmp/${chatId}.zip`,
+    zipPath: `/tmp/${sessionId}.zip`,
+    baseTemplate: "base-template.zip",
+    tmpZipPath: `/tmp/template_${snapshotId}.zip`,
+    snapShotPath: `projects/${chatId}/${snapshotId}.zip`,
     snapshotBucket: SNAPSHOT_BUCKET || "gen-project-snapshots",
     projectId: GCP_PROJECT_ID_QWINTLY,
     targetProjectId: GEN_SITES_PROJECT_ID!,

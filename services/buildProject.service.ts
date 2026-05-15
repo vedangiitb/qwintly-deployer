@@ -32,9 +32,6 @@ export async function buildDeploy(ctx: JobContext) {
   const bucketName = ctx.snapshotBucket;
   const objectName = `projects/${ctx.chatId}.zip`;
 
-  // const objectName = "template-v1.zip";
-
-  // const image = `gcr.io/${ctx.targetProjectId}/site-${ctx.chatId}`;
   const image = `asia-south1-docker.pkg.dev/${ctx.targetProjectId}/generated-sites/site-${ctx.chatId}`;
   const serviceName = `site-${ctx.chatId}`;
 
