@@ -30,7 +30,7 @@ const cloudBuild = new CloudBuildClient();
 
 export async function buildDeploy(ctx: JobContext) {
   const bucketName = ctx.snapshotBucket;
-  const objectName = `projects/${ctx.chatId}.zip`;
+  const objectName = ctx.snapShotPath;
 
   const image = `asia-south1-docker.pkg.dev/${ctx.targetProjectId}/generated-sites/site-${ctx.chatId}`;
   const serviceName = `site-${ctx.chatId}`;
