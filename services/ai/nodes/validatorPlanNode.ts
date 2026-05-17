@@ -2,17 +2,20 @@ import {
   createWorkspaceToolImpls,
   EVENT_TYPES,
   plannerTools,
+  ValidatorIndex,
+  validatorPrompt,
 } from "@vedangiitb/qwintly-core";
 import { getQwintlyCore } from "../../core/qwintlyCore.service.js";
 import { DeployerNode } from "../graph/graph.js";
 import { createWorkspaceDeps } from "../helpers/aiCoreDeps.js";
-import { validationNodePrompt } from "../prompts/validationNodePrompt.js";
 import {
   parsePlannerTasksJson,
   parsePlannerTasksUnknown,
 } from "./plannerTaskParser.js";
 
-export function makeValidatorPlanNode(validatorIndex: unknown): DeployerNode {
+export function makeValidatorPlanNode(
+  validatorIndex: ValidatorIndex,
+): DeployerNode {
   return async (state) => {
     const core = await getQwintlyCore();
 
@@ -20,7 +23,7 @@ export function makeValidatorPlanNode(validatorIndex: unknown): DeployerNode {
       "AI: Planning fixes for validation issues…",
       EVENT_TYPES.STEP_STARTED,
     );
-    const prompt = validationNodePrompt({
+    const prompt = validatorPrompt({
       errors: state.validationErrors ?? [],
       history: state.validationFixHistory ?? [],
       validatorIndex,
@@ -72,7 +75,7 @@ export function makeValidatorPlanNode(validatorIndex: unknown): DeployerNode {
     await core.streamLog(
       `AI: Fix plan ready (${plannerTasks.length} tasks)`,
       EVENT_TYPES.STEP_FINISHED,
-      true
+      true,
     );
     return { plannerTasks };
   };

@@ -6,16 +6,13 @@ const assertNonEmpty = (value: string, field: string): void => {
   }
 };
 
-export const finishGenerationSession = async (
-  chatId: string,
+export const finishDeploymentSession = async (
   genId: string,
-  planId: string,
   success: boolean,
 ) => {
-  assertNonEmpty(chatId, "chatId");
   assertNonEmpty(genId, "genId");
 
   const genSessionRepo = new GenSessionRepo();
 
-  await genSessionRepo.finishGenerationSession(chatId, genId, planId, success);
+  await genSessionRepo.finishDeploymentSession(genId, success);
 };
