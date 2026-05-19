@@ -2,6 +2,7 @@ import { EVENT_TYPES } from "@vedangiitb/qwintly-core";
 import { getJobContext } from "../job/jobContext.js";
 import { getQwintlyCore } from "./core/qwintlyCore.service.js";
 import { uploadProjectSnapshot } from "./snapshot/uploadSnapshot.service.js";
+import { zipProject } from "./zipProject.service.js";
 
 export const syncEditOps = async () => {
   const ctx = getJobContext();
@@ -14,6 +15,7 @@ export const syncEditOps = async () => {
         "Successfully synced edit ops, uploading snapshot",
         EVENT_TYPES.STEP_FINISHED,
       );
+      await zipProject(ctx);
       await uploadProjectSnapshot(ctx);
     } else {
       console.log("No edit ops to sync");
