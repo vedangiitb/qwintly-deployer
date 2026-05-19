@@ -3,10 +3,18 @@ import { deployWithRepair } from "../services/buildProject.service.js";
 import { cloneSnapshot } from "../services/cloneSnapshot.service.js";
 import { getProjectDetails } from "../services/getProjectDetails.service.js";
 import { makeServicePublic } from "../services/makePublic.service.js";
+import { syncEditOps } from "../services/syncEditOps.service.js";
 
 export async function deployerFlow() {
   await step("Cloning Project Snapshot", () => cloneSnapshot(), {
     retries: 0,
+  });
+
+  /*
+   * Sync Edit Ops
+   */
+  await step("Syncing snapshot wtih latest changes", () => syncEditOps(), {
+    retries: 1,
   });
 
   await step("Building Project", () => deployWithRepair(), {
