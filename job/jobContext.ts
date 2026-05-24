@@ -24,6 +24,7 @@ export function createJobContext() {
     provider: string;
     sessionId: string;
     snapshotId: string;
+    byokEnabled: boolean;
   };
   try {
     tokenPayload = jwt.verify(
@@ -41,12 +42,14 @@ export function createJobContext() {
   const provider = normalizeString(tokenPayload.provider);
   const sessionId = normalizeString(tokenPayload.sessionId);
   const snapshotId = normalizeString(tokenPayload.snapshotId);
+  const byokEnabled = Boolean(tokenPayload.byokEnabled);
 
   return {
     chatId: chatId,
     sessionId: sessionId,
     planId: planId,
     snapshotId: snapshotId,
+    byokEnabled: byokEnabled,
     workspace: `/tmp/workspace`,
     zipPath: `/tmp/${sessionId}.zip`,
     baseTemplate: "base-template.zip",
