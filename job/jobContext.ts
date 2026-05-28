@@ -11,6 +11,19 @@ function normalizeString(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
 }
 
+const normalizeBoolean = (value: unknown): boolean => {
+  if (typeof value === "boolean") return value;
+  if (typeof value !== "string") {
+    return true;
+  }
+
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "true") return true;
+  if (normalized === "false") return false;
+
+  return true;
+};
+
 export function createJobContext() {
   if (!JOB_TOKEN) {
     throw new Error("Missing required env vars");
@@ -24,15 +37,12 @@ export function createJobContext() {
     provider: string;
     sessionId: string;
     snapshotId: string;
+    byokEnabled: boolean;
   };
-  try {
-    tokenPayload = jwt.verify(
-      JOB_TOKEN,
-      process.env.PUBLISH_SECRET!,
-    ) as typeof tokenPayload;
-  } catch (err) {
-    throw new Error("Invalid or expired token");
-  }
+  tokenPayload = jwt.verify(
+    JOB_TOKEN,
+    process.env.PUBLISH_SECRET!,
+  ) as typeof tokenPayload;
 
   const chatId = normalizeString(tokenPayload.chatId);
   const planId = normalizeString(tokenPayload.planId);
@@ -41,12 +51,14 @@ export function createJobContext() {
   const provider = normalizeString(tokenPayload.provider);
   const sessionId = normalizeString(tokenPayload.sessionId);
   const snapshotId = normalizeString(tokenPayload.snapshotId);
+  const byokEnabled = normalizeBoolean(tokenPayload.byokEnabled);
 
   return {
     chatId: chatId,
     sessionId: sessionId,
     planId: planId,
     snapshotId: snapshotId,
+    byokEnabled: byokEnabled,
     workspace: `/tmp/workspace`,
     zipPath: `/tmp/${sessionId}.zip`,
     baseTemplate: "base-template.zip",

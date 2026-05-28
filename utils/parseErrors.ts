@@ -20,9 +20,9 @@ export function parseValidationErrors(logs: string): PreflightError[] {
 
     const fileMatch =
       // TypeScript
-      message.match(/([^\s:()]+?\.(?:ts|tsx|js|jsx))\(\d+,\d+\)/) ||
+      /([^\s:()]+\.(?:ts|tsx|js|jsx))\(\d+,\d+\)/.exec(message) ||
       // ESLint
-      message.match(/^([^\s]+?\.(?:ts|tsx|js|jsx))/m);
+      /^([^\s]+\.(?:ts|tsx|js|jsx))/m.exec(message);
 
     if (currentType !== "nextjs") {
       errors.push({
@@ -44,7 +44,7 @@ export function parseValidationErrors(logs: string): PreflightError[] {
     // -----------------------
     // ESLint file path line
     // -----------------------
-    const eslintFileMatch = line.match(/^\s*(\/?.+?\.(?:ts|tsx|js|jsx))\s*$/);
+    const eslintFileMatch = /^\s*(\/?[^\s]+\.(?:ts|tsx|js|jsx))\s*$/.exec(line);
     if (eslintFileMatch) {
       pendingEslintFile = eslintFileMatch[1];
       continue;
@@ -76,8 +76,7 @@ export function parseValidationErrors(logs: string): PreflightError[] {
     if (pendingEslintFile && /^\s*\d+:\d+\s+error\s+/i.test(line)) {
       flush();
       currentType = "eslint";
-      buffer.push(pendingEslintFile);
-      buffer.push(line);
+      buffer.push(pendingEslintFile, line);
       pendingEslintFile = null;
       continue;
     }
@@ -99,16 +98,17 @@ function stripCloudBuildPrefix(line: string): string {
 }
 
 function parseNextJsPrerenderError(logs: string): PreflightError | null {
-  const blockMatch = logs.match(
-    /Error occurred prerendering page[\s\S]*?(?:Next\.js build worker exited with code:\s*\d+|Export encountered an error[^\n]*)/i
-  );
+  const blockMatch =
+    /Error occurred prerendering page[\s\S]*?(?:Next\.js build worker exited with code:\s*\d+|Export encountered an error[^\n]*)/i.exec(
+      logs
+    );
 
   if (!blockMatch) return null;
 
   const message = blockMatch[0].trim();
   const routeMatch =
-    message.match(/prerendering page\s+"([^"]+)"/i) ||
-    message.match(/\/page:\s*([^\s,]+)/i);
+    /prerendering page\s+"([^"]+)"/i.exec(message) ||
+    /\/page:\s*([^\s,]+)/i.exec(message);
 
   const route = routeMatch?.[1] ?? null;
 

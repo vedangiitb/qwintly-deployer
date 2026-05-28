@@ -1,6 +1,5 @@
 import { getQwintlyCore } from "../services/core/qwintlyCore.service.js";
-import { isStepDone } from "./stepDone.js";
-import { markStepDone } from "./stepDone.js";
+import { isStepDone, markStepDone } from "./stepDone.js";
 import {
   defaultHeartbeatMessage,
   withStatusHeartbeat,

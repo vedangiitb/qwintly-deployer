@@ -18,7 +18,11 @@ export async function getQwintlyCore(): Promise<QwintlyCore> {
 
   const ctx = getJobContext();
 
-  const GEMINI_API_KEY = await getKeyFromUserid(ctx.userId, ctx.provider);
+  const GEMINI_API_KEY = await getKeyFromUserid(
+    ctx.userId,
+    ctx.provider,
+    ctx.byokEnabled,
+  );
 
   cachedCore = new QwintlyCore({
     chatId: ctx.chatId,
@@ -36,7 +40,7 @@ export async function getQwintlyCore(): Promise<QwintlyCore> {
     },
     gemini: {
       apiKey: GEMINI_API_KEY,
-      ...{ model: ctx.model || GEMINI_MODEL_DEFAULT },
+      model: ctx.model || GEMINI_MODEL_DEFAULT,
     },
     unsplash: {
       url: UNSPLASH_URL,
