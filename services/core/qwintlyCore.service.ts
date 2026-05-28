@@ -20,8 +20,8 @@ export async function getQwintlyCore(): Promise<QwintlyCore> {
 
   const GEMINI_API_KEY = await getKeyFromUserid(
     ctx.userId,
-    ctx.provider,
     ctx.byokEnabled,
+    ctx.provider,
   );
 
   cachedCore = new QwintlyCore({

@@ -41,7 +41,7 @@ export function createJobContext() {
   };
   tokenPayload = jwt.verify(
     JOB_TOKEN,
-    process.env.PUBLISH_SECRET!,
+    process.env.PUBLISH_SECRET || "",
   ) as typeof tokenPayload;
 
   const chatId = normalizeString(tokenPayload.chatId);
