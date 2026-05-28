@@ -40,7 +40,7 @@ export async function getQwintlyCore(): Promise<QwintlyCore> {
     },
     gemini: {
       apiKey: GEMINI_API_KEY,
-      ...{ model: ctx.model || GEMINI_MODEL_DEFAULT },
+      model: ctx.model || GEMINI_MODEL_DEFAULT,
     },
     unsplash: {
       url: UNSPLASH_URL,

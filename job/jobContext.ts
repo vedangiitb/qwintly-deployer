@@ -39,14 +39,10 @@ export function createJobContext() {
     snapshotId: string;
     byokEnabled: boolean;
   };
-  try {
-    tokenPayload = jwt.verify(
-      JOB_TOKEN,
-      process.env.PUBLISH_SECRET!,
-    ) as typeof tokenPayload;
-  } catch (err) {
-    throw new Error("Invalid or expired token");
-  }
+  tokenPayload = jwt.verify(
+    JOB_TOKEN,
+    process.env.PUBLISH_SECRET!,
+  ) as typeof tokenPayload;
 
   const chatId = normalizeString(tokenPayload.chatId);
   const planId = normalizeString(tokenPayload.planId);
