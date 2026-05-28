@@ -28,7 +28,7 @@ export function parsePlannerTasksJson(text: string): PlannerTask[] {
   try {
     parsed = JSON.parse(cleaned);
   } catch (err) {
-    console.Console;
+    console.error(err);
     throw new Error(
       `Planner tasks parse failed: invalid JSON. First 200 chars: ${cleaned.slice(0, 200)}`,
     );
